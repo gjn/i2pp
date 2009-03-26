@@ -1,0 +1,12 @@
+#ifndef I2PP_ROUTER_GLOBAL_H
+#define I2PP_ROUTER_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(I2PP_ROUTER_LIBRARY)
+#  define I2PP_ROUTERSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define I2PP_ROUTERSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // I2PP_ROUTER_GLOBAL_H
