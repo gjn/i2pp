@@ -1,0 +1,27 @@
+As you will see, the roadmap for this project is very
+raw. Also, there are no plans what will be finished
+at what time. This depends heavily on my available
+time.
+A rough estimate is that it will take up to 2011 to
+have something integratable into i2p ;=).
+
+
+Set up environment
+=====================================================
+- context
+- configuration
+- logging library
+- crypto library
+
+Core functionality
+=====================================================
+- cryptography
+- messages
+
+Router
+=====================================================
+....
+
+Applications
+=====================================================
+....

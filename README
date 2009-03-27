@@ -1,30 +1,41 @@
 *** Mission statement ***
 
 I2PP is an implementation of the I2P network/protocol in C++. It
-strives to be fully compatible with the existing I2P router,
-which is written in Java.
+strives to be fully compatible with the existing I2P router.
 
 I2PP does NOT intend to compete with I2P nor does it intend to
-stray protocols and standards given by I2P. The purpose of this
+change protocols and standards given by I2P. The purpose of this
 project is only to push the author's knowledge of networking,
 anonymity and crytpography.
 
-I2PP is able to run on multiple platforms, mainly Linux and Windows,
-but focuses on Linux foremost.
+If indeed you want to push the I2P project, I strongly recommend
+to support the official Java-based I2P implementation.
 
-License information can be found in LICENSE.txt
+I2PP is able to run on multiple platforms, with focus on Linux first
+and Windows second.
+
+The general roadmap of i2pp can be found in the ROADMAP file
+The TODO file contains the next planned tasks, while the ROADMAP
+file contains a broader plan about the implementation plan.
+
+If someone wants to start helping this project (despite my note
+above), information on how to get started can be found in the
+DEVELOP file.
+
+License information can be found in the LICENSE file
 
 *** Tools ***
 
 I2PP uses existing tools and libaries to achieve its goals:
 
 - Qt: an excellent and powerfull cross-platform framework by
-  Nokia. http://www.qtsoftware.com
+  Nokia. http://www.qtsoftware.com, together with Qt Creator,
+  a multi-platfrom IDE.
 
 - Crypto++: used for all cryptographic needs, like hashing,,
   encryption, key exchangine, etc. http://www.cryptopp.com/
 
-- log4cplus: a popular logging environment for C++,
+- log4cxx: a popular logging environment for C++.
 
 - Wt: to create the webinterface to the router's administration.
   http://www.webtoolkit.eu
@@ -36,5 +47,4 @@ I'm know as 'sirup' in the i2p network. I created the original
 port of the Gnutella client Phex to the I2P network, still known
 and working as I2Phex.
 
-I can be reached at gjn@space.ch
-
+I can be reached at gjn (at) space (dot) ch

@@ -1,0 +1,24 @@
+Before doing anything, make sure to get a basic
+understanding of i2p and how it works at the
+introductions and technical documents at
+http://www.i2p2.de/
+
+It would also make sense to have a look at the
+existing java code of i2p, as i2pp will be heavily
+based on this code base.
+
+And as mentioned in the mission statement: your
+work is most probably better spend on the i2p
+project directly.
+
+Fast way
+====================================================
+- install QT creator on your system
+- get sources from github, project i2pp
+- open i2pp.pro in QTcreator
+- go from there
+
+What the heck?
+====================================================
+More detailes description will follow, if ever the
+need will arise.
