@@ -46,30 +46,49 @@ QByteArray NtpMessage::toByteArray()
   ba[3] = (byte) _precision;
 
   // root delay is a signed 16.16-bit FP
-  int l = (int) (_rootDelay * sizeof(int));
+  qint16 l = (qint16) (_rootDelay * 65536.0);
   ba[4] = (byte) ((l >> 24) & 0xFF);
   ba[5] = (byte) ((l >> 16) & 0xFF);
   ba[6] = (byte) ((l >> 8) & 0xFF);
   ba[7] = (byte) (l & 0xFF);
 
-  /*
-  // root dispersion is an unsigned 16.16-bit FP, in Java there are no
-  // unsigned primitive types, so we use a long which is 64-bits
-  long ul = (long) (rootDispersion * 65536.0);
-  p[8] = (byte) ((ul >> 24) & 0xFF);
-  p[9] = (byte) ((ul >> 16) & 0xFF);
-  p[10] = (byte) ((ul >> 8) & 0xFF);
-  p[11] = (byte) (ul & 0xFF);
+  // root dispersion is an unsigned 16.16-bit FP
+  quint16 ul = (quint16) (_rootDispersion * 65536.0);
+  ba[8] = (byte) ((ul >> 24) & 0xFF);
+  ba[9] = (byte) ((ul >> 16) & 0xFF);
+  ba[10] = (byte) ((ul >> 8) & 0xFF);
+  ba[11] = (byte) (ul & 0xFF);
 
-  p[12] = referenceIdentifier[0];
-  p[13] = referenceIdentifier[1];
-  p[14] = referenceIdentifier[2];
-  p[15] = referenceIdentifier[3];
-
+  ba[12] = _referenceIdentifier[0];
+  ba[13] = _referenceIdentifier[1];
+  ba[14] = _referenceIdentifier[2];
+  ba[15] = _referenceIdentifier[3];
+/*
   encodeTimestamp(p, 16, referenceTimestamp);
   encodeTimestamp(p, 24, originateTimestamp);
   encodeTimestamp(p, 32, receiveTimestamp);
   encodeTimestamp(p, 40, transmitTimestamp);
+  */return ba;
+}
+
+void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, double timeStamp)
+{
+  /*
+  // Converts a double into a 64-bit fixed point
+  for(int i=0; i<8; i++)
+  {
+      // 2^24, 2^16, 2^8, .. 2^-32
+      double base = Math.pow(2, (3-i)*8);
+      // Capture byte value
+      ba[startIndex+i] = (byte) (timeStamp / base);
+      // Subtract captured value from remaining total
+      timestamp = timestamp - (double) (unsignedByteToShort(array[pointer+i]) * base);
+  }
+
+  // From RFC 2030: It is advisable to fill the non-significant
+  // low order bits of the timestamp with a random, unbiased
+  // bitstring, both to avoid systematic roundoff errors and as
+  // a means of loop detection and replay detection.
+  array[7+pointer] = (byte) (Math.random()*255.0);
 */
-  return ba;
 }

@@ -7,7 +7,7 @@ namespace i2pp {
 class NtpMessage
 {
 public:
-  typedef char byte;
+  typedef unsigned char byte;
 
   NtpMessage();
   NtpMessage(const QByteArray&);
@@ -17,8 +17,9 @@ public:
 protected:
   //is the timeoffset (as seconds) from 1900-01-01 00:00:00 to 1970-01-01 00:00:00
   static const double _secondsTo1970;
-
   static double now(); //get's now as seconds from 1900-01-01 00:00:00 in UTC
+
+  void encodeTimestamp(QByteArray& ba, int startIndex, double timeStamp);
 
   byte _leapIndicator;
   byte _version;
