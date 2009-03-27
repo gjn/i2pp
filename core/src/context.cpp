@@ -5,5 +5,10 @@ using namespace i2pp::core;
 
 Context::Context()
 {
-  QString str="";
+  _name = "default";
+}
+
+Context::Context(const QString& name)
+{
+  _name = name;
 }
