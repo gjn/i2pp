@@ -1,0 +1,8 @@
+debug
+release
+qtc-dgbmacros
+*.user
+Makefile*
+*.a
+*.so*
+
