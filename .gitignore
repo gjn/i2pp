@@ -1,6 +1,6 @@
 debug
 release
-qtc-dgbmacros
+qtc-gdbmacros
 *.user
 Makefile*
 *.a
