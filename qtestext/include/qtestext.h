@@ -53,26 +53,28 @@
   The '_' seperator is used because this library uses macro
   expansion to create unique variable names.
 
-  With the TestRunner, you can run one or several tests. The TestRunner
-  will return the number of failed tests. It's typically used in the
+  With TestSuite::getInstance()->run(...), you can run one or several tests.
+  The function will return the number of failed tests. It's typically used in the
   main(...) function of your test application.
 
   An asterix can be used to run all children (and their children)
   from a node.
-  Testrunner::run("*"); will run ALL tests
-  Testrunner::run(); will run ALL tests (provided for convenience)
-  Testrunner::run(""); will run ALL tests (provided for convenience)
-  Testrunner::run("first"); will run QTestSample1
-  Testrunner::run("testing"); will run QTestSample2
-  Testrunner::run("testing_*"); will run Sample2 to Sample6
-  Testrunner::run("testing_sample"); will run Sample3
-  Testrunner::run("testing_sample.*"); will run Sample3 to Sample6
-  Testrunner::run("testing_sample_other"); will run Sample4 and Sample 5
+  TestSuite::getInstance()->run("*",...); will run ALL tests
+  TestSuite::getInstance()->run(...); will run ALL tests (provided for convenience)
+  TestSuite::getInstance()->run("",...); will run ALL tests (provided for convenience)
+  TestSuite::getInstance()->run("first",...); will run QTestSample1
+  TestSuite::getInstance()->run("testing",...); will run QTestSample2
+  TestSuite::getInstance()->run("testing_*",...); will run Sample2 to Sample6
+  TestSuite::getInstance()->run("testing_sample",...); will run Sample3
+  TestSuite::getInstance()->run("testing_sample.*",...); will run Sample3 to Sample6
+  TestSuite::getInstance()->run("testing_sample_other",...); will run Sample4 and Sample 5
 
   For a sample on the usage of this small library, see the
   samples directory.
 */
 
-#define QTESTEXT_ADD_TO(Hierarchy,TestClass) static TestClass TestClass##Hierarchy; int* gg=new int;
+#include "testFacade.h"
+
+#define QTESTEXT_ADD_TO(TestClass,Hierarchy) static qtestext::TestFacade<TestClass> TestClass##Hierarchy(QString(#Hierarchy));
 
 #endif // QTESTEXT_H

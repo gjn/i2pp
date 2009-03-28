@@ -9,6 +9,8 @@
 
 #include "testSuite.h"
 
+#include <QString>
+
 namespace qtestext {
 
 /*
@@ -21,7 +23,7 @@ template<typename TestClass>
 class TestFacade
 {
   public:
-    TestFacade(const QString& hierarchy)
+    TestFacade(QString hierarchy)
     {
       _test = new TestClass();
       TestSuite::getInstance()->addTest(_test, hierarchy);

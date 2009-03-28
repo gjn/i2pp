@@ -25,3 +25,7 @@ TestSuite::~TestSuite()
   delete _rootNode;
 }
 
+void TestSuite::addTest(QObject* pTest, QString hierarchy)
+{
+
+}

@@ -7,8 +7,7 @@ TARGET = qtestext
 TEMPLATE = lib
 CONFIG += staticlib
 INCLUDEPATH += include
-SOURCES += src/qtestext.cpp \
-    src/testSuite.cpp \
+SOURCES += src/testSuite.cpp \
     src/testNode.cpp
 HEADERS += include/qtestext.h \
     include/testFacade.h \

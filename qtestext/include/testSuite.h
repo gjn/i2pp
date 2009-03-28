@@ -7,6 +7,9 @@
 #ifndef QTESTEXT_TESTSUITE_H
 #define QTESTEXT_TESTSUITE_H
 
+#include <QObject>
+#include <QString>
+
 namespace qtestext {
 
 class TestNode;
@@ -18,6 +21,8 @@ class TestSuite
 
     TestSuite();
     ~TestSuite();
+
+    void addTest(QObject* pTest, QString hierarchy);
 
   private:
     TestNode* _rootNode;
