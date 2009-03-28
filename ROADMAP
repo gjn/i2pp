@@ -8,6 +8,7 @@ have something integratable into i2p ;=).
 
 Set up environment
 =====================================================
+- unittesting
 - context
 - configuration
 - logging library

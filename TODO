@@ -1,3 +1,4 @@
+- setup unittesting environment
 - setup basic context
 - config handling with qsettings and through contexts
 - loggin library integration, through contexts
