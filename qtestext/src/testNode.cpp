@@ -4,13 +4,10 @@
  http://www.gnu.org/licenses/gpl.html
  See LICENSE for license details.
 */
-#include "qtestext.h"
+#include "testNode.h"
 
-void testfunc(int* pTest);
-void testfunc(int* pTest)
+using namespace qtestext;
+
+TestNode::TestNode()
 {
-  *pTest = 5;
 }
-
-QTESTEXT_ADD_TO(s,int);
-
