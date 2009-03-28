@@ -12,7 +12,7 @@ If indeed you want to push the I2P project, I strongly recommend
 to support the official Java-based I2P implementation.
 
 I2PP is able to run on multiple platforms, with focus on Linux first
-and Windows second.
+and Windows second. I2PP developement is driven by unit testing.
 
 The general roadmap of i2pp can be found in the ROADMAP file
 The TODO file contains the next planned tasks, while the ROADMAP
