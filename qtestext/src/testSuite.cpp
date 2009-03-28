@@ -6,6 +6,7 @@
 */
 #include "testSuite.h"
 #include "testNode.h"
+#include <QTest>
 
 using namespace qtestext;
 
@@ -27,5 +28,16 @@ TestSuite::~TestSuite()
 
 void TestSuite::addTest(QObject* pTest, QString hierarchy)
 {
+  _list += pTest;
+}
 
+int TestSuite::run(int argc, char* argv[])
+{
+  int result = 0;
+  foreach(QObject* test, _list)
+  {
+    int temp = QTest::qExec(test, argc, argv);
+    result |= temp;
+  }
+  return result;
 }

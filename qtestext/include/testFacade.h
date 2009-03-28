@@ -19,23 +19,23 @@ namespace qtestext {
   Use the QTESTEXT_ADD_TO to add tests to the global test suite.
 */
 
-template<typename TestClass>
+template<class T>
 class TestFacade
 {
   public:
     TestFacade(QString hierarchy)
     {
-      _test = new TestClass();
+      _test = new T;
       TestSuite::getInstance()->addTest(_test, hierarchy);
-    }
+    };
 
-    ~TestRegistration()
+    ~TestFacade()
     {
       delete _test;
-    }
+    };
 
   private:
-    TestClass* _test;
+    T* _test;
 };
 
 

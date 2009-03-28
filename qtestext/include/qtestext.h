@@ -31,23 +31,23 @@
 
   Sample usage:
   Let's have a couple of test classes with their registered names.
-  QTESTEXT_ADD_TO(QTestSample1,first);
-  QTESTEXT_ADD_TO(QTestSample2,testing);
-  QTESTEXT_ADD_TO(QTestSample3,testing_sample);
-  QTESTEXT_ADD_TO(QTestSample4,testing_sample_other);
-  QTESTEXT_ADD_TO(QTestSample5,testing_sample_other);
-  QTESTEXT_ADD_TO(QTestSample6,testing_sample_yetanother);
+  QTESTEXT_ADD_TO(TestSample1,first);
+  QTESTEXT_ADD_TO(TestSample2,testing);
+  QTESTEXT_ADD_TO(TestSample3,testing_sample);
+  QTESTEXT_ADD_TO(TestSample4,testing_sample_other);
+  QTESTEXT_ADD_TO(TestSample5,testing_sample_other);
+  QTESTEXT_ADD_TO(TestSample6,testing_sample_yetanother);
   Note that the hierarchy name has to be specified without
   quotes!
-  QTESTEXT_ADD_TO(QTestSampleXXX,"dummy"); will spew
+  QTESTEXT_ADD_TO(TestSampleXXX,"dummy"); will spew
   a compiler error.
   As you can see with sample 4 and 5, tests can be added to
   the same node in the hierarchy. Also, it's possile to add the
   same test class to different nodes in the hierarchy:
-  QTESTEXT_ADD_TO(QTestSample2,"second"); is a valid definition.
+  QTESTEXT_ADD_TO(TestSample2,"second"); is a valid definition.
   It's not possible to add the same class to the same hierarchy
   node:
-  QTESTEXT_ADD_TO(QTestSample6,"testing_sample_yetanother");
+  QTESTEXT_ADD_TO(TestSample6,"testing_sample_yetanother");
   is NOT valid. It will spew an error on complie time.
 
   The '_' seperator is used because this library uses macro
@@ -75,6 +75,6 @@
 
 #include "testFacade.h"
 
-#define QTESTEXT_ADD_TO(TestClass,Hierarchy) static qtestext::TestFacade<TestClass> TestClass##Hierarchy(QString(#Hierarchy));
+#define QTESTEXT_ADD_TO(TestClass,Hierarchy) static qtestext::TestFacade<TestClass> TestClass##Hierarchy(QString(#Hierarchy))
 
 #endif // QTESTEXT_H

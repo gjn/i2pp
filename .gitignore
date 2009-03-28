@@ -5,4 +5,5 @@ qtc-gdbmacros
 Makefile*
 *.a
 *.so*
+qtestext/qtestextsample/runsamples
 

@@ -9,5 +9,6 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS = qtestext \
+          qtestext/qtestextsample \
 	  core \
           router

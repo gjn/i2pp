@@ -9,6 +9,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QList>
 
 namespace qtestext {
 
@@ -22,12 +23,20 @@ class TestSuite
     TestSuite();
     ~TestSuite();
 
+    int run(int argc, char* argv[]);
+
+
+    /*
+      You should not use this function directly. Use the
+      QTESTEXT_ADD_TO instead.
+    */
     void addTest(QObject* pTest, QString hierarchy);
 
   private:
     TestNode* _rootNode;
+    //for first tests...just put them in a list without hierarchy
+    QList<QObject*> _list;
 };
 
 }
-
 #endif // QTESTEXT_TESTSUITE_H
