@@ -6,8 +6,14 @@ QT -= gui
 TARGET = runsamples
 CONFIG += console
 CONFIG -= app_bundle
-LIBS += -L../ \
-    -lqtestext
+LIBS += -L../lib/
+CONFIG(release, debug|release){
+    LIBS += -lqtestext
+}
+else{
+    LIBS += -lqtestextD
+    DEFINES += DEBUG
+}
 TEMPLATE = app
 INCLUDEPATH = ../include
 SOURCES += main.cpp \

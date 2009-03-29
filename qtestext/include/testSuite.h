@@ -24,12 +24,13 @@ class TestSuite
     ~TestSuite();
 
     //run all tests. See QTest::qExec function about the measing of these parameters
-    int run(int argc = 0, char* argv[] = 0);
-    int run(QStringList& arguments);
+    //count returns the number of testclasses run.
+    int run(int& count,int argc = 0, char* argv[] = 0);
+    int run(int& count,QStringList& arguments);
 
     //run the tests for the given hierarchy as a first string parameter
-    int run(QString hierarchy,int argc = 0, char* argv[] = 0);
-    int run(QString hierarchy,QStringList& arguments);
+    int run(QString hierarchy,int& count,int argc = 0, char* argv[] = 0);
+    int run(QString hierarchy,int& count,QStringList& arguments);
 
     /*
       You should not use this function directly. Use the

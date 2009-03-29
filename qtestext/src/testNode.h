@@ -19,14 +19,14 @@ class TestNode
   public:
     TestNode();
 
+    static int _count;
+
     void addTestToNode(QObject*,QString);
-    int run(QString hierarchy, int argc, char* argv[]);
-    int run(QString hierarchy, QStringList& arguments);
-  protected:
     int run(QString hierarchy, bool mainstyle, int argc, char* argv[], QStringList& arguments);
+  protected:
     void setName(QString str);
     QString _name;
-    QList<QObject*> _list; //the tests of this node
+    QList<QObject*> _tests; //the tests of this node
     QMap<QString,TestNode> _children; //the child nodes of this node
 
 };

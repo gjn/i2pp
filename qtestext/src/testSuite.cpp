@@ -6,6 +6,7 @@
 */
 #include "testSuite.h"
 #include "testNode.h"
+#include <QStringList>
 
 using namespace qtestext;
 
@@ -30,29 +31,34 @@ void TestSuite::addTest(QObject* pTest, QString hierarchy)
   _rootNode->addTestToNode(pTest,hierarchy);
 }
 
-int TestSuite::run(int argc, char* argv[])
+int TestSuite::run(int& count, int argc, char* argv[])
 {
-  return _rootNode->run("*",argc,argv);
+  return run("*",count,argc,argv);
 }
 
-int TestSuite::run(QStringList& arguments)
+int TestSuite::run(int& count,QStringList& arguments)
 {
-  return _rootNode->run("*",arguments);
+  return run("*",count,arguments);
 }
 
-int TestSuite::run(QString hi, int argc, char* argv[])
+int TestSuite::run(QString hi, int& count, int argc, char* argv[])
 {
   if (hi.isEmpty())
-    return _rootNode->run("*", argc,argv);
-  else
-    return _rootNode->run(hi, argc,argv);
+    hi = "*";
+  TestNode::_count = 0;
+  QStringList dummy;
+  int nRetVal = _rootNode->run(hi,true,argc,argv,dummy);
+  count = TestNode::_count;
+  return nRetVal;
 }
 
-int TestSuite::run(QString hi, QStringList& arguments)
+int TestSuite::run(QString hi, int& count, QStringList& arguments)
 {
   if (hi.isEmpty())
-    return _rootNode->run("*", arguments);
-  else
-    return _rootNode->run(hi, arguments);
+    hi = "*";
+  TestNode::_count = 0;
+  int nRetVal = _rootNode->run(hi,false,0,NULL,arguments);
+  count = TestNode::_count;
+  return nRetVal;
 }
 

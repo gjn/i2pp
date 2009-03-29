@@ -3,10 +3,15 @@
 # -------------------------------------------------
 QT += testlib
 QT -= gui
+DESTDIR = lib
 TARGET = qtestext
 TEMPLATE = lib
 CONFIG += staticlib
 INCLUDEPATH += include
+CONFIG(debug, debug|release){
+    TARGET = qtestextD
+    DEFINES += DEBUG
+}
 SOURCES += src/testSuite.cpp \
     src/testNode.cpp
 HEADERS += include/qtestext.h \

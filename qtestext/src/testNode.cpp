@@ -11,6 +11,8 @@
 
 using namespace qtestext;
 
+int TestNode::_count = 0;
+
 TestNode::TestNode()
 {
 }
@@ -26,7 +28,7 @@ void TestNode::addTestToNode(QObject* pTest,QString hierarchy)
   //if hierarchy is empty or no more hierarchy, we reached our node
   if (hierarchy.isEmpty() || nodeNames.isEmpty())
   {
-    _list += pTest;
+    _tests += pTest;
   }
   else
   {
@@ -48,17 +50,6 @@ void TestNode::addTestToNode(QObject* pTest,QString hierarchy)
     }
     _children[firstNode].addTestToNode(pTest,newH);
   }
-}
-
-int TestNode::run(QString hierarchy, int argc, char* argv[])
-{
-  QStringList bla;
-  return run(hierarchy,true,argc,argv,bla);
-}
-
-int TestNode::run(QString hierarchy, QStringList& arguments)
-{
-  return run(hierarchy,false,0,NULL,arguments);
 }
 
 int TestNode::run(QString hierarchy, bool mainstyle, int argc, char* argv[], QStringList& arguments)
@@ -107,8 +98,9 @@ int TestNode::run(QString hierarchy, bool mainstyle, int argc, char* argv[], QSt
   }
   if (bCallOwn)
   {
-    foreach(QObject* test, _list)
+    foreach(QObject* test, _tests)
     {
+      ++_count;
       if (mainstyle)
         result += QTest::qExec(test, argc, argv);
       else
