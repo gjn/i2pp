@@ -18,10 +18,9 @@
   settings, keys, identities, netdb and more is stored. The location
   of the working directory is chosen by the context itself, with
   the help of the QSettings class. On linux, the working directory
-  is placed under the $HOME/.config/i2pp/context.name directory (on
-  Linux systems) and %APPDATA%/i2pp/context.name directory under
-  Windows systems. Also, the settings will be read from this
-  directory.
+  is placed under the $HOME/.config/i2pp/context_name directory. On
+  windows, the directory is %APPDATA%/i2pp/context_name. Also, the
+  settings will be read from this directory.
 
   The name of the context is chosen automatically upon creation with
   the default constructor (and the name is, very originally, 'default').
@@ -29,19 +28,17 @@
 
   As the context is THE central part of i2pp, it's important
   that a context instance is created as early as possible
-  in an application.
+  in an application, and deleted at the very end.
 
   It's possible to have more than one context in one process/application.
   This is especially helpful for developement and debugging, to have
   several routers up and running, talking to each other; but is not
   limited to this usage.
-  The Context class make sure, that every context created has it's unique
-  name and working directory (to avoid having context conflicting and
-  using the same keys, identities, etc.). When a context is instantiated
-  and the given name already exists, we append '1' to the name, counting
-  up, until a non-existing name is given.
+  To avoid mixing different contexts interfering with each other, it's
+  important to name every context differently.
 */
 
+class QSettings;
 
 namespace i2pp {
   namespace core {
@@ -52,9 +49,18 @@ class Context {
     Context();
     // creates a context with the given name
     Context(const QString& name);
+    //the destructor
+    virtual ~Context();
+
+    QString name();
+  private:
+    void init(const QString& name);
 
   protected:
-    QString _name; //name of the context (unique among all Context instances)
+
+    QString _name; //name of the context
+
+    QSettings* _settings; //settings used to read/write settings. It's also used to get the context path
 };
 
 }

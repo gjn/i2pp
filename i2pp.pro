@@ -11,4 +11,5 @@ CONFIG += ordered
 SUBDIRS = qtestext \
           qtestext/qtestextsample \
 	  core \
+	  core/testcore \
           router

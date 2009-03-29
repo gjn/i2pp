@@ -74,6 +74,7 @@
 */
 
 #include "testFacade.h"
+#include <QtTest/QtTest>
 
 #define QTESTEXT_ADD_TO(TestClass,Hierarchy) static qtestext::TestFacade<TestClass> TestClass##Hierarchy(QString(#Hierarchy))
 

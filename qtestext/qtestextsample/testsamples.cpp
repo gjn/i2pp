@@ -1,6 +1,5 @@
 #include "testsamples.h"
 
-#include <QtTest/QtTest>
 #include "qtestext.h"
 
 QTESTEXT_ADD_TO(TestSample1,first);

@@ -8,7 +8,7 @@
 #define I2PP_CORE_H
 
 /* This header file should be enough to include
-   for external libs/libraries. It includes all
+   for external libs/applications. It includes all
    other header files of the include directory.
 */
 

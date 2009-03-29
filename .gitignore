@@ -7,4 +7,4 @@ Makefile*
 *.a
 *.so*
 qtestext/qtestextsample/runsamples
-
+core/testcore/testcore

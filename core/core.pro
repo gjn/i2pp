@@ -20,3 +20,7 @@ HEADERS += include/context.h \
     src/pc.h \
     include/core.h \
     src/time/ntpmessage.h
+
+win32 {
+    DEFINES += WIN32
+}

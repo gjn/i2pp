@@ -19,3 +19,5 @@ INCLUDEPATH = ../include
 SOURCES += main.cpp \
     testsamples.cpp
 HEADERS += testsamples.h
+
+QMAKE_POST_LINK = ./runsamples

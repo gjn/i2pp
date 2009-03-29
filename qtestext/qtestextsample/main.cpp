@@ -1,5 +1,4 @@
 #include "qtestext.h"
-#include <testsamples.h>
 #include <iostream>
 
 int main(int argc, char *argv[])
