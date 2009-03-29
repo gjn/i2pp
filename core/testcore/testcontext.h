@@ -10,6 +10,7 @@ class TestContext : public QObject
     TestContext();
   private slots:
     void testConstruction();
+    void testLogger();
 };
 
 #endif // TESTCONTEXT_H

@@ -1,4 +1,2 @@
-- test unittesting environment on windows
-- setup basic context
-- config handling with qsettings and through contexts
-- loggin library integration, through contexts
+- test context settings under windows (locations, naming, etc)
+- test logging under windows (integrate log4cxx under windows)

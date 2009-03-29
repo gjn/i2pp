@@ -14,6 +14,9 @@ CONFIG(debug, debug|release){
     TARGET = i2pp-coreD
     DEFINES += DEBUG
 }
+
+LIBS += -llog4cxx
+
 SOURCES += src/context.cpp \
     src/time/ntpmessage.cpp
 HEADERS += include/context.h \

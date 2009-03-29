@@ -10,7 +10,8 @@ INCLUDEPATH += ../include \
     ../../qtestext/include
 TEMPLATE = app
 LIBS += -L../lib/ \
-    -L../../qtestext/lib/
+    -L../../qtestext/lib/ \
+    -llog4cxx
 CONFIG(release, debug|release):LIBS += -lqtestext \
     -li2pp-core
 else { 
