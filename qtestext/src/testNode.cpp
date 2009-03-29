@@ -6,8 +6,127 @@
 */
 #include "testNode.h"
 
+#include <QStringList>
+#include <QTest>
+
 using namespace qtestext;
 
 TestNode::TestNode()
 {
+}
+
+void TestNode::setName(QString str)
+{
+  _name = str;
+}
+
+void TestNode::addTestToNode(QObject* pTest,QString hierarchy)
+{
+  QStringList nodeNames = hierarchy.split("_",QString::SkipEmptyParts);
+  //if hierarchy is empty or no more hierarchy, we reached our node
+  if (hierarchy.isEmpty() || nodeNames.isEmpty())
+  {
+    _list += pTest;
+  }
+  else
+  {
+    //check if the node exists
+    QString firstNode = nodeNames.at(0);
+    if (!_children.contains(firstNode))
+    {
+      _children[firstNode].setName(firstNode);
+    }
+    nodeNames.removeFirst();
+    QString newH="";
+    bool bFirst = true;
+    foreach(QString str, nodeNames)
+    {
+      if (!bFirst)
+        newH += "_";
+      newH += str;
+      bFirst = false;
+    }
+    _children[firstNode].addTestToNode(pTest,newH);
+  }
+}
+
+int TestNode::run(QString hierarchy, int argc, char* argv[])
+{
+  int result = 0;
+  bool bCallOwn = false;
+  if (hierarchy == "*" || _name.isEmpty())
+  {
+    QList<QString> keys = _children.keys();
+    foreach(QString key, keys)
+    {
+      result += _children[key].run(hierarchy,argc,argv);
+    }
+    bCallOwn = (hierarchy == "*");
+  }
+  else
+  {
+    //let's check if we have to execute our tests
+    QStringList nodeNames = hierarchy.split("_",QString::SkipEmptyParts);
+    if (!nodeNames.isEmpty())
+    {
+      if ((nodeNames.size() == 1 || (nodeNames.size() == 2 && nodeNames.at(1) == "*")) &&
+          nodeNames.at(0) == _name)
+        bCallOwn = true;
+
+      if (nodeNames.size() > 1)
+      {
+        nodeNames.removeFirst();
+        QString newH="";
+        bool bFirst = true;
+        foreach(QString str, nodeNames)
+        {
+          if (!bFirst)
+            newH += "_";
+          newH += str;
+          bFirst = false;
+        }
+        QList<QString> keys = _children.keys();
+        foreach(QString key, keys)
+        {
+          result += _children[key].run(newH,argc,argv);
+        }
+      }
+
+    }
+  }
+  if (bCallOwn)
+  {
+    foreach(QObject* test, _list)
+    {
+        result += QTest::qExec(test, argc, argv);
+    }
+  }
+  return result;
+}
+
+int TestNode::run(QString hierarchy, QStringList& arguments)
+{
+  int result = 0;
+  /*
+  if (hierarchy == "*")
+  {
+    QList<QString> keys = _children.keys();
+    foreach(QString key, keys)
+    {
+      result += _children[key].run("",arguments);
+    }
+
+    //now call own tests
+    foreach(QObject* test, _list)
+    {
+      result += QTest::qExec(test, arguments);
+    }
+    return result;
+  }
+  else
+  {
+    return result;
+  }
+  */
+  return result;
 }

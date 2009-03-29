@@ -23,8 +23,13 @@ class TestSuite
     TestSuite();
     ~TestSuite();
 
-    int run(int argc, char* argv[]);
+    //run all tests. See QTest::qExec function about the measing of these parameters
+    int run(int argc = 0, char* argv[] = 0);
+    int run(QStringList& arguments);
 
+    //run the tests for the given hierarchy as a first string parameter
+    int run(QString hierarchy,int argc = 0, char* argv[] = 0);
+    int run(QString hierarchy,QStringList& arguments);
 
     /*
       You should not use this function directly. Use the
@@ -34,8 +39,6 @@ class TestSuite
 
   private:
     TestNode* _rootNode;
-    //for first tests...just put them in a list without hierarchy
-    QList<QObject*> _list;
 };
 
 }

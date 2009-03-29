@@ -1,6 +1,14 @@
 #include "testsamples.h"
 
 #include <QtTest/QtTest>
+#include "qtestext.h"
+
+QTESTEXT_ADD_TO(TestSample1,first);
+QTESTEXT_ADD_TO(TestSample2,testing);
+QTESTEXT_ADD_TO(TestSample3,testing_sample);
+QTESTEXT_ADD_TO(TestSample4,testing_sample_other);
+QTESTEXT_ADD_TO(TestSample5,testing_sample_other);
+QTESTEXT_ADD_TO(TestSample6,testing_sample_yetanother);
 
 TestSample1::TestSample1()
 {
@@ -28,7 +36,7 @@ void TestSample2::test1()
 
 void TestSample2::test2()
 {
-  QVERIFY(false);
+  QVERIFY(true);
 }
 
 
@@ -39,12 +47,12 @@ TestSample3::TestSample3()
 
 void TestSample3::test1()
 {
-  QVERIFY(false);
+  QVERIFY(true);
 }
 
 void TestSample3::test2()
 {
-  QVERIFY(false);
+  QVERIFY(true);
 }
 
 
@@ -60,7 +68,7 @@ void TestSample4::test1()
 
 void TestSample4::test2()
 {
-  QVERIFY(false);
+  QVERIFY(true);
 }
 
 
@@ -76,7 +84,7 @@ void TestSample5::test1()
 
 void TestSample5::test2()
 {
-  QVERIFY(false);
+  QVERIFY(true);
 }
 
 
@@ -92,6 +100,6 @@ void TestSample6::test1()
 
 void TestSample6::test2()
 {
-  QVERIFY(false);
+  QVERIFY(true);
 }
 

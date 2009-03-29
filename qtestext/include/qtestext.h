@@ -59,14 +59,14 @@
 
   An asterix can be used to run all children (and their children)
   from a node.
-  TestSuite::getInstance()->run("*",...); will run ALL tests
   TestSuite::getInstance()->run(...); will run ALL tests (provided for convenience)
+  TestSuite::getInstance()->run("*",...); will run ALL tests
   TestSuite::getInstance()->run("",...); will run ALL tests (provided for convenience)
   TestSuite::getInstance()->run("first",...); will run QTestSample1
   TestSuite::getInstance()->run("testing",...); will run QTestSample2
   TestSuite::getInstance()->run("testing_*",...); will run Sample2 to Sample6
   TestSuite::getInstance()->run("testing_sample",...); will run Sample3
-  TestSuite::getInstance()->run("testing_sample.*",...); will run Sample3 to Sample6
+  TestSuite::getInstance()->run("testing_sample_*",...); will run Sample3 to Sample6
   TestSuite::getInstance()->run("testing_sample_other",...); will run Sample4 and Sample 5
 
   For a sample on the usage of this small library, see the
