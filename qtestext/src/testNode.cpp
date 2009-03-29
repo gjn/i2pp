@@ -52,14 +52,25 @@ void TestNode::addTestToNode(QObject* pTest,QString hierarchy)
 
 int TestNode::run(QString hierarchy, int argc, char* argv[])
 {
-  int result = 0;
+  QStringList bla;
+  return run(hierarchy,true,argc,argv,bla);
+}
+
+int TestNode::run(QString hierarchy, QStringList& arguments)
+{
+  return run(hierarchy,false,0,NULL,arguments);
+}
+
+int TestNode::run(QString hierarchy, bool mainstyle, int argc, char* argv[], QStringList& arguments)
+{
+   int result = 0;
   bool bCallOwn = false;
   if (hierarchy == "*" || _name.isEmpty())
   {
     QList<QString> keys = _children.keys();
     foreach(QString key, keys)
     {
-      result += _children[key].run(hierarchy,argc,argv);
+       result += _children[key].run(hierarchy,mainstyle,argc,argv,arguments);
     }
     bCallOwn = (hierarchy == "*");
   }
@@ -88,7 +99,7 @@ int TestNode::run(QString hierarchy, int argc, char* argv[])
         QList<QString> keys = _children.keys();
         foreach(QString key, keys)
         {
-          result += _children[key].run(newH,argc,argv);
+          result += _children[key].run(newH,mainstyle,argc,argv,arguments);
         }
       }
 
@@ -98,35 +109,11 @@ int TestNode::run(QString hierarchy, int argc, char* argv[])
   {
     foreach(QObject* test, _list)
     {
+      if (mainstyle)
         result += QTest::qExec(test, argc, argv);
+      else
+        result += QTest::qExec(test, arguments);
     }
   }
-  return result;
-}
-
-int TestNode::run(QString hierarchy, QStringList& arguments)
-{
-  int result = 0;
-  /*
-  if (hierarchy == "*")
-  {
-    QList<QString> keys = _children.keys();
-    foreach(QString key, keys)
-    {
-      result += _children[key].run("",arguments);
-    }
-
-    //now call own tests
-    foreach(QObject* test, _list)
-    {
-      result += QTest::qExec(test, arguments);
-    }
-    return result;
-  }
-  else
-  {
-    return result;
-  }
-  */
   return result;
 }

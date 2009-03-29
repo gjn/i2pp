@@ -23,6 +23,7 @@ class TestNode
     int run(QString hierarchy, int argc, char* argv[]);
     int run(QString hierarchy, QStringList& arguments);
   protected:
+    int run(QString hierarchy, bool mainstyle, int argc, char* argv[], QStringList& arguments);
     void setName(QString str);
     QString _name;
     QList<QObject*> _list; //the tests of this node
