@@ -1,103 +1,107 @@
-/*
- Copyright (C) 2009  Gilbert Jeiziner
- Licensed under GNU GPL v2.
- http://www.gnu.org/licenses/gpl.html
- See LICENSE for license details.
+/*  this file is part of i2pp
+    Copyright (C)2009 Gilbert Jeiziner
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 #include "pc.h"
 #include "context.h"
+#include "log4qt/ttcclayout.h"
+#include "log4qt/fileappender.h"
 
 #include <QSettings>
-#include "log4cxx/basicconfigurator.h"
-#include "log4cxx/fileappender.h"
-#include "log4cxx/patternlayout.h"
 
 using namespace i2pp::core;
 
 Context::Context()
 {
-  init("default");
+    init("default");
 }
 
 Context::Context(const QString& name)
 {
-  init(name);
+    init(name);
 }
 
 Context::~Context()
 {
-  delete _settings;
-  _settings = NULL;
+    delete _settings;
+    _settings = NULL;
 }
 
 void Context::init(const QString& name)
 {
-  _name = name;
-  QSettings::Format format = QSettings::NativeFormat;
+    _name = name;
+    QSettings::Format format = QSettings::NativeFormat;
 #ifdef WIN32 //on windows, native is in registry...we don't want that
-  format = QSettings::IniFormat;
+    format = QSettings::IniFormat;
 #endif
-  QSettings localSettings(format, QSettings::UserScope,"i2pp","context_"+name);
-  QFileInfo fi(localSettings.fileName());
-  _directory = fi.absoluteDir().absolutePath() + QDir::separator() + fi.baseName () + QDir::separator();
-  //make sure that the directory exists
-  QDir(_directory).mkpath(_directory);
-  QString filepath = _directory + "router." + fi.completeSuffix();
-  _settings = new QSettings(filepath, format);
+    QSettings localSettings(format, QSettings::UserScope,"i2pp","context_"+name);
+    QFileInfo fi(localSettings.fileName());
+    _directory = fi.absoluteDir().absolutePath() + QDir::separator() + fi.baseName () + QDir::separator();
+    //make sure that the directory exists
+    QDir(_directory).mkpath(_directory);
+    QString filepath = _directory + "router." + fi.completeSuffix();
+    _settings = new QSettings(filepath, format);
 
-  //loggin initialisation
-  initLogger();
+    //loggin initialisation
+    initLogger();
 }
 
 void Context::initLogger()
 {
-  //todo: adapte to be configurable through property file!
-  static bool bBasicConfigured = false;
-  static QMap<QString,QString> contextRootLoggers;
-  if (!bBasicConfigured)
-  {
-    log4cxx::BasicConfigurator::configure(); //make sure log4cxx root logger has some basic initialisation
-    bBasicConfigured = true;
-  }
-
-  if (!contextRootLoggers.contains(_name))
-  {
-    //now configure the context specific root logger
-    log4cxx::LoggerPtr logger=log4cxx::Logger::getLogger(QString(_name).toStdString());
-    //we don't want to rely on the root logger for appenders/levels!
-    logger->setAdditivity(false);
-    //for starters, let's to debug level logging
-    logger->setLevel(log4cxx::Level::DEBUG);
-    //create layout
-    //log4cxx::PatternLayoutPtr layout(new log4cxx::PatternLayout("%-4r [%t] %-5p %c %x - %m%n"));
-    log4cxx::PatternLayoutPtr layout(new log4cxx::PatternLayout("%d [%t] %-5p %c %x - %m%n"));
-    //create fileappender. filename should be static (or member variable), as when it's not, this created exception...
-    contextRootLoggers[_name] = _directory + "router.log";
-    log4cxx::FileAppenderPtr appender(new log4cxx::FileAppender(layout,contextRootLoggers[_name].toStdString(),true));
-    logger->addAppender(appender);
-  }
+    ///@todo initialisation is very basic now. extend to configure with input file
+    static QMap<QString,QString> contextRootLoggers;
+    if (!contextRootLoggers.contains(_name))
+    {
+        contextRootLoggers[_name] = _directory + "router.log";
+        //create layout
+        Log4Qt::TTCCLayout* layout = new Log4Qt::TTCCLayout();
+        //create file appender
+        Log4Qt::FileAppender* appender = new Log4Qt::FileAppender(layout,
+                                                                  contextRootLoggers[_name],
+                                                                  true);
+        appender->activateOptions();
+        //create logger
+        Log4Qt::Logger* logger = Log4Qt::Logger::logger(_name);
+        logger->setAdditivity(false);
+        //for starters, let's debug level logging
+        logger->setLevel(Log4Qt::Level(Log4Qt::Level::DEBUG_INT));
+        logger->addAppender(appender);
+    }
 }
 
 QString Context::name()
 {
-  return _name;
+    return _name;
 }
 
 QString Context::directory()
 {
-  return _directory;
+    return _directory;
 }
 
 QSettings* Context::settings()
 {
-  return _settings;
+    return _settings;
 }
 
-log4cxx::LoggerPtr Context::logger(QString name)
+Log4Qt::Logger* Context::logger(QString name)
 {
-  //getting logger, prepending the context name
-  if (name.isEmpty())
-    return log4cxx::Logger::getLogger(QString(_name).toStdString());
-  else
-    return log4cxx::Logger::getLogger(QString(_name+"."+name).toStdString());
+    //getting logger, prepending the context name
+    if (name.isEmpty())
+      return Log4Qt::Logger::logger(_name);
+    else
+      return Log4Qt::Logger::logger(QString(_name+"::"+name));
 }

@@ -1,76 +1,134 @@
-/*
- Copyright (C) 2009  Gilbert Jeiziner
- Licensed under GNU GPL v2.
- http://www.gnu.org/licenses/gpl.html
- See LICENSE for license details.
+/*  this file is part of i2pp
+    Copyright (C)2009 Gilbert Jeiziner
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
+
 #ifndef QTESTEXT_H
 #define QTESTEXT_H
 
-/*
-  QTextExt is a simple extension to the Qt Test Module.
-  Consulte the Qt documentation on how to create tests
-  using the Qt Test Module. It's heavily inspired
-  by a similar by a similar project called QtTestUtil
-  http://git.el-tramo.be/browse/qttestutil.git/
+/*!
+  @mainpage
 
-  It allows the registration of tests to run in test
-  suits. Suits are organized in a hierarchy. A runner
-  then allows to executed registered tests, executing
-  only parts of the hierarchy, if desired.
+  qtestext is a simple extension to the Qt Test Module.
+  It's heavily inspired (if not to say copied) from the
+  QtTestUtil project at http://git.el-tramo.be/browse/qttestutil.git/
+  by Remko Tronçon.
 
-  The hierarchy is build using names. Each node of
-  the hierarchy can contain none, one or several tests
-  to be executed.
+  It allows the registration of tests into a test suit.
+  The tests are organized in a tree-like hierarchy in
+  the suit. The tree of the suit can be executed as a whole,
+  or only desired leaves.
 
-  Simply add a QTESTEXT_ADDTO_SUITE for every test-class you
-  want to run, typically this is added in your *.cpp file of
-  the test class. You also need to include the *moc file of
-  the test class (see Qt Test Module documentation for
-  details)
+  The tree is build using names. Each node of the tree can
+  none, one or n tests.
 
-  Sample usage:
-  Let's have a couple of test classes with their registered names.
+  \section Usage
+  Define your test classes as specified in the Qt Test Module
+  documentation. Inside a cpp file, call the macro:
+
+  @code
+  QTESTEXT_ADDTO_SUITE(CMyTestClass,this_is_the_tree_node);
+  @endcode
+
+  where CMyTestClass is your test class to be executed, and
+  this_is_the_tree_node describes on wich node in the tree the
+  test will be placed. Do this for every TestClass that you want
+  to include in the tree.
+  \note the node name must be specified without quotes.
+
+  A call to
+  @code
+  qtestext::TestSuite::getInstance()->run(...)
+  @endcode
+  executes the tests you want. It will return the number of
+  TestClasses that were executed as well as the number of errors
+  produced in this run.
+
+  @code
+  #include qtestext.h
+  @endcode
+  The above include should give you everything you need.
+
+  \section Restrictions
+  '_' is acting as a node separator. This is due to the fact that
+  a static variable is created for each call to the macro, and the
+  name of the macro will be derived from this specifier.
+  This is also the reason that node-names can only contain characters
+  that are allowed in variable names in C++.
+
+  It is however allowed to add the same TestClass to different nodes
+  on the tree. Also, it's allowed to add several TestClasses to the
+  same node in the tree.
+
+  \section Details
+  Here is a more detailed sample:
+  @code
   QTESTEXT_ADD_TO(TestSample1,first);
   QTESTEXT_ADD_TO(TestSample2,testing);
   QTESTEXT_ADD_TO(TestSample3,testing_sample);
   QTESTEXT_ADD_TO(TestSample4,testing_sample_other);
   QTESTEXT_ADD_TO(TestSample5,testing_sample_other);
   QTESTEXT_ADD_TO(TestSample6,testing_sample_yetanother);
-  Note that the hierarchy name has to be specified without
-  quotes!
-  QTESTEXT_ADD_TO(TestSampleXXX,"dummy"); will spew
-  a compiler error.
-  As you can see with sample 4 and 5, tests can be added to
-  the same node in the hierarchy. Also, it's possile to add the
-  same test class to different nodes in the hierarchy:
   QTESTEXT_ADD_TO(TestSample2,"second"); is a valid definition.
-  It's not possible to add the same class to the same hierarchy
-  node:
-  QTESTEXT_ADD_TO(TestSample6,"testing_sample_yetanother");
-  is NOT valid. It will spew an error on complie time.
+  @endcode
 
-  The '_' seperator is used because this library uses macro
-  expansion to create unique variable names.
+  the following will trigger a compiler errors:
+  @code
+  //don't use quotes!
+  QTESTEXT_ADD_TO(TestSampleXXX,"dummy");
+  //don't add same test class to same tree node
+  QTESTEXT_ADD_TO(TestSample2,"second");
+  @endcode
 
-  With TestSuite::getInstance()->run(...), you can run one or several tests.
-  The function will return the number of failed tests. It's typically used in the
-  main(...) function of your test application.
+  here is how you can run the above samples:
+  @code
+  int nrFailed = 0;
+  int nrExecuted = 0;
+  //run all tests
+  nrFailed = TestSuite::getInstance()->run(nrExecuted, ...);
 
-  An asterix can be used to run all children (and their children)
-  from a node.
-  TestSuite::getInstance()->run(...); will run ALL tests (provided for convenience)
-  TestSuite::getInstance()->run("*",...); will run ALL tests
-  TestSuite::getInstance()->run("",...); will run ALL tests (provided for convenience)
-  TestSuite::getInstance()->run("first",...); will run QTestSample1
-  TestSuite::getInstance()->run("testing",...); will run QTestSample2
-  TestSuite::getInstance()->run("testing_*",...); will run Sample2 to Sample6
-  TestSuite::getInstance()->run("testing_sample",...); will run Sample3
-  TestSuite::getInstance()->run("testing_sample_*",...); will run Sample3 to Sample6
-  TestSuite::getInstance()->run("testing_sample_other",...); will run Sample4 and Sample 5
+  //run all tests (other method)
+  nrFailed = TestSuite::getInstance()->run("*", nrExecuted, ...);
 
-  For a sample on the usage of this small library, see the
-  samples directory.
+  //run all tests (yet another possibility)
+  nrFailed = TestSuite::getInstance()->run("", nrExecuted, ...);
+
+  //will run TestSample1 only
+  nrFailed = TestSuite::getInstance()->run("first", nrExecuted, ...);
+
+  //will run TestSample2 only
+  nrFailed = TestSuite::getInstance()->run("testing", ...);
+
+  // will run TestSample2, TestSample3, ..., TestSample6
+  nrFailed = TestSuite::getInstance()->run("testing_*", nrExecuted, ...);
+
+  //will run TestSample3 only
+  nrFailed = TestSuite::getInstance()->run("testing_sample", nrExecuted, ...);
+
+  // will run TestSample3, TestSample4, ..., TestSample6
+  nrFailed = TestSuite::getInstance()->run("testing_sample_*", ...);
+
+  // will run TestSample4 and TestSample5
+  nrFailed = TestSuite::getInstance()->run("testing_sample_other", nrExecuted, ...);
+  @endcode
+
+  A working sample can be found in the qtestextsample directory.
+
+  \author Gilbert Jeiziner
+  \version 0.0.1 (March 2009)
 */
 
 #include "testFacade.h"

@@ -8,3 +8,4 @@ Makefile*
 *.so*
 qtestext/qtestextsample/runsamples
 core/testcore/testcore
+*object_script*.*

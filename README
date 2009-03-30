@@ -35,7 +35,7 @@ I2PP uses existing tools and libaries to achieve its goals:
 - Crypto++: used for all cryptographic needs, like hashing,,
   encryption, key exchangine, etc. http://www.cryptopp.com/
 
-- log4cxx: a popular logging environment for C++.
+- log4qt: a log4j-like logging library for qt.
 
 - Wt: to create the webinterface to the router's administration.
   http://www.webtoolkit.eu
