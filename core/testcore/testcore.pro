@@ -42,9 +42,13 @@ CONFIG(release, debug|release){
 }
 SOURCES += \
     main.cpp \
+    runner.cpp \
     testcontext.cpp
 
-HEADERS += testcontext.h
+HEADERS +=  \
+    runner.h \
+    testcontext.h
+
 
 #run the tests after build
 win32 {

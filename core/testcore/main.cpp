@@ -15,22 +15,15 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#include "qtestext.h"
-#include <iostream>
+
+#include "runner.h"
+#include <QTimer>
 
 int main(int argc, char *argv[])
 {
-    int nresult = 0;
-    int ncount = 0;
-    int nDummy;
-    //run all tests
-    nresult += qtestext::TestSuite::getInstance()->run(nDummy,argc,argv);
-    ncount += nDummy;
-    std::cout  << "*************************************************************************" << std::endl;
-    if (nresult > 0)
-        std::cout << nresult << " Failure(s)! (" << ncount << " classes tested)" << std::endl;
-    else
-        std::cout << "0 Failures (" << ncount << " classes tested)" << std::endl;
-    std::cout  << "*************************************************************************" << std::endl;
-    return nresult;
+    QCoreApplication app(argc,argv);
+    Runner runner(&app);
+    QTimer::singleShot(1, &runner, SLOT(run()));
+    app.exec();
+    return runner.getRetVal();
 }

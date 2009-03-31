@@ -16,32 +16,33 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "testcontext.h"
-#include "context.h"
-#include "qtestext.h"
+#ifndef RUNNER_H
+#define RUNNER_H
 
-QTESTEXT_ADD_TO(TestContext,core);
+#include <QCoreApplication>
 
-TestContext::TestContext()
+class Runner : public QObject
 {
-}
+    Q_OBJECT
+    public:
+        Runner(QCoreApplication* pApplication);
 
-void TestContext::testConstruction()
-{
-    i2pp::core::Context newContext;
-    QCOMPARE(newContext.name(),QString("global"));
-    i2pp::core::Context anotherContext("t1");
-    QCOMPARE(anotherContext.name(),QString("t1"));
-}
+        int getRetVal();
+    public slots:
+        void run();
 
-void TestContext::testLogger()
-{
-    i2pp::core::Context context("t1");
-    context.logger("my::first::logger")->debug("log message to test");
-}
+    private:
+        QCoreApplication* _pApplication;
+        int _retVal;
+};
 
-void TestContext::testSettings()
+class Exiter
 {
-    i2pp::core::Context context("t1");
-    context.getSetting("dummykey",QString("dummyvalue"));
-}
+    public:
+        Exiter(QCoreApplication* pApplication);
+        ~Exiter();
+    private:
+        QCoreApplication* _pApplication;
+};
+
+#endif // RUNNER_H
