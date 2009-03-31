@@ -44,7 +44,7 @@ namespace core
   settings will be read from this directory.
 
   The name of the context is chosen automatically upon creation with
-  the default constructor (and the name is, very originally, 'default'),
+  the default constructor (and the name is, very originally, 'global'),
   or you can specify a name.
 
   @warning
@@ -62,7 +62,7 @@ namespace core
 */
 class Context {
     public:
-        ///creates a context with name 'default'
+        ///creates a context with name 'global'
         Context();
         ///creates a context with the given name
         Context(const QString& name);
@@ -81,7 +81,9 @@ class Context {
           the context, make sure that the appropriate file is installed/located
           in the context directory.
         */
-        QSettings* settings();
+        QVariant getSetting(const QString& key,
+                            const QVariant& defaultValue = QVariant()) const;
+        void setSetting(const QString & key, const QVariant & value);
 
         /*! logger
           Get the context logger. To any logger name given, the context name
@@ -107,7 +109,8 @@ class Context {
         QString _name; //name of the context
         QString _directory; //directory of the context (contains trailing separator)
 
-        QSettings* _settings; //settings used to read/write settings. It's also used to get the context path
+        QSettings* _settings; //router settings
+        QSettings* _globalSettings; //global settings
 };
 
 }

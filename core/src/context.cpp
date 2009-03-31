@@ -26,7 +26,7 @@ using namespace i2pp::core;
 
 Context::Context()
 {
-    init("default");
+    init("global");
 }
 
 Context::Context(const QString& name)
@@ -49,12 +49,17 @@ void Context::init(const QString& name)
 #endif
     QSettings localSettings(format, QSettings::UserScope,"i2pp","context_"+name);
     QFileInfo fi(localSettings.fileName());
-    _directory = fi.absoluteDir().absolutePath() + QDir::separator() + fi.baseName () + QDir::separator();
+    _directory = fi.absoluteDir().absolutePath() + QDir::separator() +
+                 fi.baseName () + QDir::separator();
     //make sure that the directory exists
-    QDir(_directory).mkpath(_directory);
+    QDir curDir = QDir(_directory);
+    curDir.mkpath(_directory);
+    curDir.cdUp();
     QString filepath = _directory + "router." + fi.completeSuffix();
     _settings = new QSettings(filepath, format);
 
+    _globalSettings = new QSettings(curDir.absolutePath() + QDir::separator() +
+                                    "router." + fi.completeSuffix(), format);
     //loggin initialisation
     initLogger();
 }
@@ -92,9 +97,22 @@ QString Context::directory()
     return _directory;
 }
 
-QSettings* Context::settings()
+QVariant Context::getSetting(const QString& key,
+                             const QVariant& defaultValue) const
 {
-    return _settings;
+    //make sure global settings has it
+    if (!_globalSettings->contains(key))
+        _globalSettings->setValue(key,defaultValue);
+    //get from router, if not, get from global settings
+    if (_settings->contains(key))
+        return _settings->value(key, defaultValue);
+    else
+        return _globalSettings->value(key, defaultValue);
+}
+
+void Context::setSetting(const QString & key, const QVariant & value)
+{
+    _settings->setValue(key, value);
 }
 
 Log4Qt::Logger* Context::logger(QString name)

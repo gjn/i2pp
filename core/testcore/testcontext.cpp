@@ -28,13 +28,19 @@ TestContext::TestContext()
 void TestContext::testConstruction()
 {
     i2pp::core::Context newContext;
-    QCOMPARE(newContext.name(),QString("default"));
-    i2pp::core::Context anotherContext("testing");
-    QCOMPARE(anotherContext.name(),QString("testing"));
+    QCOMPARE(newContext.name(),QString("global"));
+    i2pp::core::Context anotherContext("t1");
+    QCOMPARE(anotherContext.name(),QString("t1"));
 }
 
 void TestContext::testLogger()
 {
-    i2pp::core::Context context("testlogger");
+    i2pp::core::Context context("t1");
     context.logger("my::first::logger")->debug("log message to test");
+}
+
+void TestContext::testSettings()
+{
+    i2pp::core::Context context("t1");
+    context.getSetting("dummykey",QString("dummyvalue"));
 }

@@ -26,6 +26,7 @@ class TestContext : public QObject
     public:
         TestContext();
     private slots:
+        void testSettings();
         void testConstruction();
         void testLogger();
 };
