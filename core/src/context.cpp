@@ -22,7 +22,49 @@
 
 #include <QSettings>
 
+namespace i2pp {
+    namespace core {
+
+        class ContextGlobals
+        {
+            public:
+                ContextGlobals()
+                {
+                    _format = QSettings::NativeFormat;
+#ifdef WIN32 //on windows, native is in registry...we don't want that
+                    _format = QSettings::IniFormat;
+#endif
+                    QSettings localSettings(_format, QSettings::UserScope,"i2pp","dummy");
+                    QFileInfo fi(localSettings.fileName());
+                    QString directory = fi.absoluteDir().absolutePath() + QDir::separator() +
+                                        fi.baseName () + QDir::separator();
+                    _confSuffix = fi.completeSuffix();
+                    QDir curDir = QDir(directory);
+                    curDir.cdUp();
+                    _rootDirectory = curDir.absolutePath() + QDir::separator();
+                    curDir.mkpath(_rootDirectory);
+                    _globalSettings = new QSettings(_rootDirectory + "router." + _confSuffix, _format);
+                }
+
+                ~ContextGlobals()
+                {
+                    delete _globalSettings;
+                }
+
+                QSettings::Format _format;
+                QString _rootDirectory;
+                QString _confSuffix;
+                QSettings* _globalSettings;
+                QMap<QString,int> _contextRootLoggers;
+                QMap<QString,int> _contextCounter;
+        };
+    }
+}
+
 using namespace i2pp::core;
+
+//create the globals during initialisation
+static ContextGlobals g_globals;
 
 Context::Context()
 {
@@ -36,6 +78,9 @@ Context::Context(const QString& name)
 
 Context::~Context()
 {
+    --(g_globals._contextCounter[_name]);
+    if (g_globals._contextCounter[_name] <= 0)
+        g_globals._contextCounter.remove(_name);
     delete _settings;
     _settings = NULL;
 }
@@ -43,71 +88,75 @@ Context::~Context()
 void Context::init(const QString& name)
 {
     _name = name;
-    QSettings::Format format = QSettings::NativeFormat;
-#ifdef WIN32 //on windows, native is in registry...we don't want that
-    format = QSettings::IniFormat;
-#endif
-    QSettings localSettings(format, QSettings::UserScope,"i2pp","context_"+name);
-    QFileInfo fi(localSettings.fileName());
-    _directory = fi.absoluteDir().absolutePath() + QDir::separator() +
-                 fi.baseName () + QDir::separator();
-    //make sure that the directory exists
+    //set context directory
+    _directory = g_globals._rootDirectory + "context_" + name + QDir::separator();
+    //init the loggers as early as possible, so we have it
+    initLogger();
+
+    if (g_globals._contextCounter.contains(name))
+    {
+        ++g_globals._contextCounter[name];
+        QString strMessage=QString("Context with the name %1 is at least created twice!"
+                           " This will most likely result in conflicts and undefined"
+                           " behaviour!").arg(_name);
+        _logger->error(strMessage);
+    }
+    else
+        g_globals._contextCounter[name] = 1;
+
     QDir curDir = QDir(_directory);
     curDir.mkpath(_directory);
-    curDir.cdUp();
-    QString filepath = _directory + "router." + fi.completeSuffix();
-    _settings = new QSettings(filepath, format);
-
-    _globalSettings = new QSettings(curDir.absolutePath() + QDir::separator() +
-                                    "router." + fi.completeSuffix(), format);
-    //loggin initialisation
-    initLogger();
+    QString filepath = _directory + "router." + g_globals._confSuffix;
+    _settings = new QSettings(filepath, g_globals._format);
 }
 
 void Context::initLogger()
 {
     ///@todo initialisation is very basic now. extend to configure with input file
-    static QMap<QString,QString> contextRootLoggers;
-    if (!contextRootLoggers.contains(_name))
+    if (!g_globals._contextRootLoggers.contains(_name))
     {
-        contextRootLoggers[_name] = _directory + "router.log";
+        g_globals._contextRootLoggers[_name] = 1;
         //create layout
         Log4Qt::TTCCLayout* layout = new Log4Qt::TTCCLayout();
         //create file appender
         Log4Qt::FileAppender* appender = new Log4Qt::FileAppender(layout,
-                                                                  contextRootLoggers[_name],
+                                                                  _directory + "router.log",
                                                                   true);
+        appender->setName("FileAppender");
         appender->activateOptions();
         //create logger
-        Log4Qt::Logger* logger = Log4Qt::Logger::logger(_name);
-        logger->setAdditivity(false);
-        //for starters, let's debug level logging
-        logger->setLevel(Log4Qt::Level(Log4Qt::Level::DEBUG_INT));
-        logger->addAppender(appender);
+        _logger = Log4Qt::Logger::logger(_name);
+        _logger->setAdditivity(false);
+        //for starters, let's log at debug level
+        _logger->setLevel(Log4Qt::Level(Log4Qt::Level::DEBUG_INT));
+        _logger->addAppender(appender);
+    }
+    else
+    {
+        _logger = Log4Qt::Logger::logger(_name);
     }
 }
 
-QString Context::name()
+QString Context::name() const
 {
     return _name;
 }
 
-QString Context::directory()
+QString Context::directory() const
 {
     return _directory;
 }
 
-QVariant Context::getSetting(const QString& key,
-                             const QVariant& defaultValue) const
+QVariant Context::getSetting(const QString& key, const QVariant& defaultValue) const
 {
     //make sure global settings has it
-    if (!_globalSettings->contains(key))
-        _globalSettings->setValue(key,defaultValue);
+    if (!g_globals._globalSettings->contains(key))
+        g_globals._globalSettings->setValue(key,defaultValue);
     //get from router, if not, get from global settings
     if (_settings->contains(key))
         return _settings->value(key, defaultValue);
     else
-        return _globalSettings->value(key, defaultValue);
+        return g_globals._globalSettings->value(key, defaultValue);
 }
 
 void Context::setSetting(const QString & key, const QVariant & value)
