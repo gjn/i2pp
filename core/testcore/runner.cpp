@@ -28,6 +28,9 @@ _retVal(0)
 
 void Runner::run()
 {
+     //to have MAIN thread name in the log files
+    thread()->setObjectName("MAIN");
+
     //make sure we stop the application when we are finished
     Exiter exit(_pApplication);
 
@@ -58,5 +61,6 @@ _pApplication(pApp)
 
 Exiter::~Exiter()
 {
+    //end the event loop
     _pApplication->exit();
 }

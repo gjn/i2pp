@@ -21,6 +21,8 @@
 
 #include "log4qt/logger.h"
 
+#include <QReadWriteLock>
+
 class QSettings;
 
 namespace i2pp
@@ -69,9 +71,9 @@ class Context {
         ///the destructor
         virtual ~Context();
         ///name of the context
-        QString name();
+        QString name() const;
         ///directory location of the context
-        QString directory();
+        QString directory() const;
 
         /*! settings
           settings of the context, see QSettings configuration on how to
@@ -105,12 +107,12 @@ class Context {
         void initLogger();
 
     protected:
-
         QString _name; //name of the context
         QString _directory; //directory of the context (contains trailing separator)
 
         QSettings* _settings; //router settings
-        QSettings* _globalSettings; //global settings
+
+        Log4Qt::Logger* _logger; //this contexts logger
 };
 
 }
