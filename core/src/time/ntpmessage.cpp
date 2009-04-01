@@ -18,11 +18,14 @@
 #include "pc.h"
 #include "ntpmessage.h"
 
+#include <math.h>
+#include <cstdlib>
+
 using namespace i2pp::core;
 
-const double NtpMessage::_secondsTo1970 =
-    QDateTime::fromString("19000101000000","yyyyMMddhhmmss")
-    .secsTo(QDateTime::fromString("19700101000000","yyyyMMddhhmmss"));
+const quint32 NtpMessage::_secondsTo1970 = 2208988800U;
+
+bool bRandInit = false;
 
 NtpMessage::NtpMessage()
 {
@@ -35,23 +38,22 @@ NtpMessage::NtpMessage()
     _rootDelay = 0.0;
     _rootDispersion = 0.0;
     _referenceIdentifier = QByteArray((int)4,(byte)0);
-    _referenceTime = 0.0;
-    _originateTime = 0.0;
-    _recieveTime = 0.0;
-    _transmitTime = now();
+    nowUTC(_transmitTime);
 }
 
 NtpMessage::NtpMessage(const QByteArray& ba)
 {
     ///@todo parse the byte array
+    ba;
 }
 
 //static
-double NtpMessage::now()
+void NtpMessage::nowUTC(ntpTime& time)
 {
     QDateTime current = QDateTime::currentDateTime();
     //toTime_t also converts to UTC
-    return _secondsTo1970 + current.toTime_t() + current.time().msec()/1000.0;
+    time._seconds = _secondsTo1970 + current.toTime_t();
+    time._fractional = current.time().msec();
 }
 
 QByteArray NtpMessage::toByteArray()
@@ -80,32 +82,32 @@ QByteArray NtpMessage::toByteArray()
     ba[13] = _referenceIdentifier[1];
     ba[14] = _referenceIdentifier[2];
     ba[15] = _referenceIdentifier[3];
-    /*
-    encodeTimestamp(p, 16, referenceTimestamp);
-    encodeTimestamp(p, 24, originateTimestamp);
-    encodeTimestamp(p, 32, receiveTimestamp);
-    encodeTimestamp(p, 40, transmitTimestamp);
-  */return ba;
+
+    encodeTimestamp(ba, 16, _referenceTime);
+    encodeTimestamp(ba, 24, _originateTime);
+    encodeTimestamp(ba, 32, _recieveTime);
+    encodeTimestamp(ba, 40, _transmitTime);
+    return ba;
 }
 
-void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, double timeStamp)
+void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, ntpTime& timeStamp)
 {
-    /*
-    // Converts a double into a 64-bit fixed point
-    for(int i=0; i<8; i++)
-    {
-        // 2^24, 2^16, 2^8, .. 2^-32
-        double base = Math.pow(2, (3-i)*8);
-        // Capture byte value
-        ba[startIndex+i] = (byte) (timeStamp / base);
-        // Subtract captured value from remaining total
-        timestamp = timestamp - (double) (unsignedByteToShort(array[pointer+i]) * base);
-    }
-
+    ba[startIndex] = (byte) ((timeStamp._seconds >> 24) & 0xFF);
+    ba[startIndex+1] = (byte) ((timeStamp._seconds >> 16) & 0xFF);
+    ba[startIndex+2] = (byte) ((timeStamp._seconds >> 8) & 0xFF);
+    ba[startIndex+3] = (byte) (timeStamp._seconds & 0xFF);
+    ba[startIndex+4] = (byte) ((timeStamp._fractional >> 24) & 0xFF);
+    ba[startIndex+5] = (byte) ((timeStamp._fractional >> 16) & 0xFF);
+    ba[startIndex+6] = (byte) ((timeStamp._fractional >> 8) & 0xFF);
     // From RFC 2030: It is advisable to fill the non-significant
     // low order bits of the timestamp with a random, unbiased
     // bitstring, both to avoid systematic roundoff errors and as
     // a means of loop detection and replay detection.
-    array[7+pointer] = (byte) (Math.random()*255.0);
-    */
+    // the below should be sufficient for our needs
+    if (!bRandInit)
+    {
+        bRandInit = true;
+        srand(timeStamp._seconds);
+    }
+    ba[startIndex+7] = (byte) (rand() % 255);
 }

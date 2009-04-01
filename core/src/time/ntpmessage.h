@@ -33,12 +33,19 @@ class NtpMessage
 
         QByteArray toByteArray();
 
+        ///is the timeoffset (as seconds) from 1900-01-01 00:00:00 to 1970-01-01 00:00:00
+        static const quint32 _secondsTo1970;
     protected:
-        //is the timeoffset (as seconds) from 1900-01-01 00:00:00 to 1970-01-01 00:00:00
-        static const double _secondsTo1970;
-        static double now(); //get's now as seconds from 1900-01-01 00:00:00 in UTC
+        struct ntpTime
+        {
+            ntpTime() {_seconds = 0; _fractional = 0;}
+            quint32 _seconds;
+            quint32 _fractional;
+        };
+        //get's now as seconds from 1900-01-01 00:00:00 in UTC
+        static void nowUTC(ntpTime&);
 
-        void encodeTimestamp(QByteArray& ba, int startIndex, double timeStamp);
+        void encodeTimestamp(QByteArray& ba, int startIndex, ntpTime& timeStamp);
 
         byte _leapIndicator;
         byte _version;
@@ -49,11 +56,11 @@ class NtpMessage
         double _rootDelay;
         double _rootDispersion;
         QByteArray _referenceIdentifier;
-        //all tims are as seconds from 01.01.1900 00:00:00
-        double _referenceTime;
-        double _originateTime;
-        double _recieveTime;
-        double _transmitTime;
+        //all times are as seconds from 01.01.1900 00:00:00
+        ntpTime _referenceTime;
+        ntpTime _originateTime;
+        ntpTime _recieveTime;
+        ntpTime _transmitTime;
 };
 
 }

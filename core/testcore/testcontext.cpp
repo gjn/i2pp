@@ -65,9 +65,19 @@ void TestContext::testLogger()
     fi=QFileInfo(pAppender->file());
     nNewSize = fi.size();
     QVERIFY(nNewSize > nSize);
-/*
     //let's do some performance testing...comment
     //it out if you don't want to do this everytime
+    //the following is the out from my linux laptop
+    //(Mobile Intel(R) Pentium(R) 4 - M CPU 2.00GHz) with 1GB RAM running ubuntu 8.10.
+    //
+    //    Context root logger tested 100000 times. 0.09164ms per run.
+    //    Context nested logger tested 100000 times. 0.10768ms per run.
+    //    Context root logger with disabled log level tested 100000 times. 0.00182ms per run.
+    //    Context nested logger with disabled log level tested 100000 times. 0.00478ms per run.
+    //    same as above, but formatting string with double and int 100000 times. 0.01849ms per run.
+    //
+    //as you can see, this is quite preformant...and fills the log file fast :)
+    /*
     const int nMaxRuns = 100000;
     const QString strConst = "performance testing for the logger";
     QTime timer;
@@ -110,7 +120,7 @@ void TestContext::testLogger()
     }
     nNrMillisecondsPer = double(timer.elapsed()) / double(nMaxRuns);
     std::cout  << "same as above, but formatting string with double and int " << nMaxRuns << " times. " << nNrMillisecondsPer << "ms per run." << std::endl;
-*/
+    */
 }
 
 void TestContext::testSettings()

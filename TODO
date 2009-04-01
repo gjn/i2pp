@@ -1,2 +1,1 @@
-- test context settings under windows (locations, naming, etc)
-- test logging under windows (integrate log4cxx under windows)
+- ntp message and ntp client implementation, to get timestamps from ntp servers.
