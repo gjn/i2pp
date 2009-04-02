@@ -20,4 +20,6 @@
 
 #include <QtCore>
 
+#define UNUSED_PARAMETER(x) (void)x
+
 #endif // PC_H

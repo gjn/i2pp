@@ -27,6 +27,7 @@ class TestNtpMessage : public QObject
         TestNtpMessage();
     private slots:
         void testContants();
+        void testParsing();
 };
 
 #endif // TESTNTPMESSAGE_H

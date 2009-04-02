@@ -94,15 +94,17 @@ Context::Context(const QString& name):
         _name(name)
         ,_directory(g_globals._rootDirectory + "context_" + name + QDir::separator())
 {
-    init(name);
+    init();
 }
 
 Context::Context(const Context& other)
 {
+    UNUSED_PARAMETER(other);
 }
 
 Context& Context::operator =(const Context& other)
 {
+    UNUSED_PARAMETER(other);
     return *this;
 }
 
@@ -112,7 +114,7 @@ Context::~Context()
     _settings = NULL;
 }
 
-void Context::init(const QString& name)
+void Context::init()
 {
     //init the loggers as early as possible, so we have it
     initLogger();

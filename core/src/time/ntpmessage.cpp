@@ -38,22 +38,72 @@ NtpMessage::NtpMessage()
     _rootDelay = 0.0;
     _rootDispersion = 0.0;
     _referenceIdentifier = QByteArray((int)4,(byte)0);
+    _referenceTime = 0.0;
+    _originateTime = 0.0;
+    _recieveTime = 0.0;
     nowUTC(_transmitTime);
 }
 
 NtpMessage::NtpMessage(const QByteArray& ba)
 {
-    ///@todo parse the byte array
-    ba;
+    _leapIndicator = (byte) ((ba[0] >> 6) & 0x3);
+    _version = (byte) ((ba[0] >> 3) & 0x7);
+    _mode = (byte) (ba[0] & 0x7);
+    _stratum = unsignedByteToShort(ba[1]);
+    _pollInterval = ba[2];
+    _precision = ba[3];
+    _rootDelay = (ba[4] * 256.0) +
+                  unsignedByteToShort(ba[5]) +
+                  (unsignedByteToShort(ba[6]) / 256.0) +
+                  (unsignedByteToShort(ba[7]) / 65536.0);
+    _rootDelay = (unsignedByteToShort(ba[8]) * 256.0) +
+                         unsignedByteToShort(ba[9]) +
+                         (unsignedByteToShort(ba[10]) / 256.0) +
+                         (unsignedByteToShort(ba[11]) / 65536.0);
+    _referenceIdentifier[0] = ba[12];
+    _referenceIdentifier[1] = ba[13];
+    _referenceIdentifier[2] = ba[14];
+    _referenceIdentifier[3] = ba[15];
+    _referenceTime = decodeTimestamp(ba, 16);
+    _originateTime = decodeTimestamp(ba, 24);
+    _recieveTime = decodeTimestamp(ba, 32);
+    _transmitTime = decodeTimestamp(ba, 40);
+}
+
+bool NtpMessage::operator==(const NtpMessage& other) const
+{
+    if (_leapIndicator == other._leapIndicator &&
+        _version == other._version &&
+        _mode == other._mode &&
+        _stratum == other._stratum &&
+        _pollInterval == other._pollInterval &&
+        _precision == other._precision &&
+        _rootDelay == other._rootDelay &&
+        fabs(_rootDispersion - other._rootDispersion) < 0.0001 &&
+        _referenceIdentifier == other._referenceIdentifier &&
+        fabs(_referenceTime - other._referenceTime) < 0.0001 &&
+        fabs(_originateTime - other._originateTime) < 0.0001 &&
+        fabs(_recieveTime - other._recieveTime) < 0.0001 &&
+        fabs(_transmitTime - other._transmitTime) < 0.0001)
+        return true;
+  return false;
 }
 
 //static
-void NtpMessage::nowUTC(ntpTime& time)
+void NtpMessage::nowUTC(double& time)
 {
     QDateTime current = QDateTime::currentDateTime();
-    //toTime_t also converts to UTC
-    time._seconds = _secondsTo1970 + current.toTime_t();
-    time._fractional = current.time().msec();
+    //toTime_t returns seconds from 1.1.1970 to now in UTC
+    time = _secondsTo1970 + current.toTime_t() + current.time().msec() / 1000.0;
+}
+
+//static
+short NtpMessage::unsignedByteToShort(byte b)
+{
+    if((b & 0x80)==0x80)
+        return (short) (128 + (b & 0x7f));
+    else
+        return (short) b;
 }
 
 QByteArray NtpMessage::toByteArray()
@@ -90,15 +140,19 @@ QByteArray NtpMessage::toByteArray()
     return ba;
 }
 
-void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, ntpTime& timeStamp)
+void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, const double& ts)
 {
-    ba[startIndex] = (byte) ((timeStamp._seconds >> 24) & 0xFF);
-    ba[startIndex+1] = (byte) ((timeStamp._seconds >> 16) & 0xFF);
-    ba[startIndex+2] = (byte) ((timeStamp._seconds >> 8) & 0xFF);
-    ba[startIndex+3] = (byte) (timeStamp._seconds & 0xFF);
-    ba[startIndex+4] = (byte) ((timeStamp._fractional >> 24) & 0xFF);
-    ba[startIndex+5] = (byte) ((timeStamp._fractional >> 16) & 0xFF);
-    ba[startIndex+6] = (byte) ((timeStamp._fractional >> 8) & 0xFF);
+    double timeStamp = ts;
+    // Converts a double into a 64-bit fixed point
+    for(int i=0; i<8; i++)
+    {
+        // 2^24, 2^16, 2^8, .. 2^-32
+        double base = pow(2, (3-i)*8);
+        // Capture byte value
+        ba[startIndex+i] = (byte) (timeStamp / base);
+        // Subtract captured value from remaining total
+        timeStamp = timeStamp - (double) (unsignedByteToShort(ba[startIndex+i]) * base);
+    }
     // From RFC 2030: It is advisable to fill the non-significant
     // low order bits of the timestamp with a random, unbiased
     // bitstring, both to avoid systematic roundoff errors and as
@@ -107,7 +161,17 @@ void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, ntpTime& timeSt
     if (!bRandInit)
     {
         bRandInit = true;
-        srand(timeStamp._seconds);
+        srand(timeStamp); //seed once with time
     }
     ba[startIndex+7] = (byte) (rand() % 255);
+}
+
+double NtpMessage::decodeTimestamp(const QByteArray& ba, int startIndex)
+{
+    double r = 0.0;
+    for(int i=0; i<8; i++)
+    {
+         r += unsignedByteToShort(ba[startIndex+i]) * pow(2, (3-i)*8);
+    }
+    return r;
 }

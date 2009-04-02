@@ -23,29 +23,32 @@ namespace i2pp
 namespace core
 {
 
+/*! NtpMessage
+    Simple wrapper to represent an NtpMessage.
+    @warning
+    This class stops working after at about the 7th of February 2036
+
+    Basically, this is a copy of Java implementation in i2p
+*/
 class NtpMessage
 {
     public:
-        typedef unsigned char byte;
-
+        typedef char byte;
         NtpMessage();
         NtpMessage(const QByteArray&);
+        bool operator==(const NtpMessage& other) const;
 
         QByteArray toByteArray();
 
         ///is the timeoffset (as seconds) from 1900-01-01 00:00:00 to 1970-01-01 00:00:00
         static const quint32 _secondsTo1970;
+        void encodeTimestamp(QByteArray& ba, int startIndex, const double& timeStamp);
+        double decodeTimestamp(const QByteArray& ba, int startIndex);
     protected:
-        struct ntpTime
-        {
-            ntpTime() {_seconds = 0; _fractional = 0;}
-            quint32 _seconds;
-            quint32 _fractional;
-        };
         //get's now as seconds from 1900-01-01 00:00:00 in UTC
-        static void nowUTC(ntpTime&);
+        static void nowUTC(double&);
+        static short unsignedByteToShort(byte b);
 
-        void encodeTimestamp(QByteArray& ba, int startIndex, ntpTime& timeStamp);
 
         byte _leapIndicator;
         byte _version;
@@ -57,10 +60,10 @@ class NtpMessage
         double _rootDispersion;
         QByteArray _referenceIdentifier;
         //all times are as seconds from 01.01.1900 00:00:00
-        ntpTime _referenceTime;
-        ntpTime _originateTime;
-        ntpTime _recieveTime;
-        ntpTime _transmitTime;
+        double _referenceTime;
+        double _originateTime;
+        double _recieveTime;
+        double _transmitTime;
 };
 
 }

@@ -107,7 +107,7 @@ class Context {
         Context(const Context& other); //disable copy constructor
         Context&  operator = (const Context& other); //disable assignement operator
 
-        void init(const QString& name);
+        void init();
         void initLogger();
 
     protected:
