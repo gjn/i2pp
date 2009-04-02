@@ -49,14 +49,14 @@ namespace core
   the default constructor (and the name is, very originally, 'global'),
   or you can specify a name.
 
-  @warning
-  To avoid mixing different contexts interfering with each other, it's
-  important to name every context differently.
+  @note
+  Each context name is unique.
 
   @note
   As the context is THE central part of i2pp, it's important
   that a context instance is created as early as possible
-  in an application, and deleted at the very end.
+  in an application, and deleted at the very end. Creation is _NOT_
+  done during static initialisation.
 
   It's possible to have more than one context in one process/application.
   This is especially helpful, but not limited, for developement and debugging,
@@ -64,11 +64,11 @@ namespace core
 */
 class Context {
     public:
-        ///creates a context with name 'global'
-        Context();
-        ///creates a context with the given name
-        Context(const QString& name);
-        ///the destructor
+        ///provided for conveniencce; gets first created context or creates one
+        static Context* globalContext();
+        ///get a named instance, created of not already existing
+        static Context* instance(const QString& name);
+
         virtual ~Context();
         ///name of the context
         QString name() const;
@@ -103,12 +103,16 @@ class Context {
         Log4Qt::Logger* logger(QString name);
 
     private:
+        Context(const QString& name);
+        Context(const Context& other); //disable copy constructor
+        Context&  operator = (const Context& other); //disable assignement operator
+
         void init(const QString& name);
         void initLogger();
 
     protected:
-        QString _name; //name of the context
-        QString _directory; //directory of the context (contains trailing separator)
+        const QString _name; //name of the context
+        const QString _directory; //directory of the context (contains trailing separator)
 
         QSettings* _settings; //router settings
 

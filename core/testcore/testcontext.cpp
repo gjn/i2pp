@@ -32,19 +32,23 @@ TestContext::TestContext()
 
 void TestContext::testConstruction()
 {
-    i2pp::core::Context newContext;
-    QCOMPARE(newContext.name(),QString("global"));
-    i2pp::core::Context anotherContext("t1");
-    QCOMPARE(anotherContext.name(),QString("t1"));
-    i2pp::core::Context sameNameContext("t1"); //this should put out error in log
-    QCOMPARE(anotherContext.name(),QString("t1"));
+    i2pp::core::Context* newContext=i2pp::core::Context::instance("global");
+    QCOMPARE(newContext->name(),QString("global"));
+    i2pp::core::Context* anotherContext = i2pp::core::Context::instance("t1");
+    QCOMPARE(anotherContext->name(),QString("t1"));
+    i2pp::core::Context* sameNameContext = i2pp::core::Context::instance("t1");
+    QCOMPARE(anotherContext->name(),QString("t1"));
+    QCOMPARE(anotherContext,sameNameContext);
+    //assure that first created context is the global context
+    i2pp::core::Context* global = i2pp::core::Context::globalContext();
+    QCOMPARE(global, newContext);
 }
 
 void TestContext::testLogger()
 {
     //we write to fatal, so we assure that it gets written
-    i2pp::core::Context context("t1");
-    Log4Qt::Logger* logger = context.logger("");
+    i2pp::core::Context* context = i2pp::core::Context::instance("t1");
+    Log4Qt::Logger* logger = context->logger("");
     QList<Log4Qt::Appender*> list=logger->appenders();
     QCOMPARE(list.size(),1);
     Log4Qt::FileAppender* pAppender = static_cast<Log4Qt::FileAppender*>(logger->appender("FileAppender"));
@@ -53,7 +57,7 @@ void TestContext::testLogger()
     qint64 nSize = 0;
     if (fi.exists())
         nSize = fi.size();
-    context.logger("")->fatal("log message to test");
+    context->logger("")->fatal("log message to test");
     fi=QFileInfo(pAppender->file());
     QVERIFY(fi.exists());
     qint64 nNewSize = fi.size();
@@ -61,7 +65,7 @@ void TestContext::testLogger()
     nSize = nNewSize;
     //now, if we log with different logger from same context, it should be written
     //to same file
-    context.logger("dummy")->fatal("is this writing to the same file?");
+    context->logger("dummy")->fatal("is this writing to the same file?");
     fi=QFileInfo(pAppender->file());
     nNewSize = fi.size();
     QVERIFY(nNewSize > nSize);
@@ -84,14 +88,14 @@ void TestContext::testLogger()
     timer.start();
     for (int i=0; i < nMaxRuns; i++)
     {
-        context.logger("")->fatal(strConst);
+        context->logger("")->fatal(strConst);
     }
     double nNrMillisecondsPer = double(timer.elapsed()) / double(nMaxRuns);
     std::cout  << "Context root logger tested " << nMaxRuns << " times. " << nNrMillisecondsPer << "ms per run." << std::endl;
     timer.start();
     for (int i=0; i < nMaxRuns; i++)
     {
-        context.logger("a::very::far::away::logger::just::to::test::speed")->fatal(strConst);
+        context->logger("a::very::far::away::logger::just::to::test::speed")->fatal(strConst);
     }
     nNrMillisecondsPer = double(timer.elapsed()) / double(nMaxRuns);
     std::cout  << "Context nested logger tested " << nMaxRuns << " times. " << nNrMillisecondsPer << "ms per run." << std::endl;
@@ -99,7 +103,7 @@ void TestContext::testLogger()
     timer.start();
     for (int i=0; i < nMaxRuns; i++)
     {
-        context.logger("")->trace(strConst);
+        context->logger("")->trace(strConst);
     }
     nNrMillisecondsPer = double(timer.elapsed()) / double(nMaxRuns);
     std::cout  << "Context root logger with disabled log level tested " << nMaxRuns << " times. " << nNrMillisecondsPer << "ms per run." << std::endl;
@@ -107,7 +111,7 @@ void TestContext::testLogger()
     timer.start();
     for (int i=0; i < nMaxRuns; i++)
     {
-        context.logger("a::very::far::away::logger::just::to::test::speed")->trace(strConst);
+        context->logger("a::very::far::away::logger::just::to::test::speed")->trace(strConst);
     }
     nNrMillisecondsPer = double(timer.elapsed()) / double(nMaxRuns);
     std::cout  << "Context nested logger with disabled log level tested " << nMaxRuns << " times. " << nNrMillisecondsPer << "ms per run." << std::endl;
@@ -116,7 +120,7 @@ void TestContext::testLogger()
     for (int i=0; i < nMaxRuns; i++)
     {
         QString strMessage = QString("this is a string with double %1 and int %2").arg(1234567.8796).arg(23452324);
-        context.logger("a::very::far::away::logger::just::to::test::speed")->trace(strMessage);
+        context->logger("a::very::far::away::logger::just::to::test::speed")->trace(strMessage);
     }
     nNrMillisecondsPer = double(timer.elapsed()) / double(nMaxRuns);
     std::cout  << "same as above, but formatting string with double and int " << nMaxRuns << " times. " << nNrMillisecondsPer << "ms per run." << std::endl;
@@ -125,14 +129,14 @@ void TestContext::testLogger()
 
 void TestContext::testSettings()
 {
-    i2pp::core::Context context("t1");
-    context.getSetting("dummykey",QString("dummyvalue"));
+    i2pp::core::Context* context = i2pp::core::Context::instance("t1");
+    context->getSetting("dummykey",QString("dummyvalue"));
     //let's try to set a stringlist
     QStringList listWrite;
     listWrite << "FirstString" << "SecondString";
-    context.getSetting("mystringlist",listWrite);
+    context->getSetting("mystringlist",listWrite);
     QStringList readList;
-    QVariant reVal=context.getSetting("mystringlist",readList);
+    QVariant reVal=context->getSetting("mystringlist",readList);
     QVERIFY(reVal.type()==QVariant::StringList);
     readList = reVal.toStringList();
     QVERIFY(readList.size()==listWrite.size());

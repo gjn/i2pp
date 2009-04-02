@@ -44,19 +44,24 @@ namespace i2pp {
                     _rootDirectory = curDir.absolutePath() + QDir::separator();
                     curDir.mkpath(_rootDirectory);
                     _globalSettings = new QSettings(_rootDirectory + "router." + _confSuffix, _format);
+                    _globalContext = NULL;
                 }
 
                 ~ContextGlobals()
                 {
                     delete _globalSettings;
+                    foreach(Context* pContext, _instances)
+                    {
+                        delete pContext;
+                    }
                 }
 
                 QSettings::Format _format;
                 QString _rootDirectory;
                 QString _confSuffix;
                 QSettings* _globalSettings;
-                QMap<QString,int> _contextRootLoggers;
-                QMap<QString,int> _contextCounter;
+                QMap<QString,Context*> _instances;
+                Context* _globalContext;
         };
     }
 }
@@ -66,43 +71,51 @@ using namespace i2pp::core;
 //create the globals during initialisation
 static ContextGlobals g_globals;
 
-Context::Context()
+Context* Context::globalContext()
 {
-    init("global");
+    if (g_globals._globalContext)
+        return g_globals._globalContext;
+    return instance("");
 }
 
-Context::Context(const QString& name)
+Context* Context::instance(const QString& name)
+{
+    QString lname = name;
+    if (lname.isEmpty())
+        lname = "global";
+    if (!g_globals._instances.contains(lname))
+        g_globals._instances[lname] = new Context(lname);
+    if (g_globals._globalContext == NULL)
+        g_globals._globalContext = g_globals._instances[lname];
+    return g_globals._instances[lname];
+}
+
+Context::Context(const QString& name):
+        _name(name)
+        ,_directory(g_globals._rootDirectory + "context_" + name + QDir::separator())
 {
     init(name);
 }
 
+Context::Context(const Context& other)
+{
+}
+
+Context& Context::operator =(const Context& other)
+{
+    return *this;
+}
+
 Context::~Context()
 {
-    --(g_globals._contextCounter[_name]);
-    if (g_globals._contextCounter[_name] <= 0)
-        g_globals._contextCounter.remove(_name);
     delete _settings;
     _settings = NULL;
 }
 
 void Context::init(const QString& name)
 {
-    _name = name;
-    //set context directory
-    _directory = g_globals._rootDirectory + "context_" + name + QDir::separator();
     //init the loggers as early as possible, so we have it
     initLogger();
-
-    if (g_globals._contextCounter.contains(name))
-    {
-        ++g_globals._contextCounter[name];
-        QString strMessage=QString("Context with the name %1 is at least created twice!"
-                           " This will most likely result in conflicts and undefined"
-                           " behaviour!").arg(_name);
-        _logger->error(strMessage);
-    }
-    else
-        g_globals._contextCounter[name] = 1;
 
     QDir curDir = QDir(_directory);
     curDir.mkpath(_directory);
@@ -113,28 +126,20 @@ void Context::init(const QString& name)
 void Context::initLogger()
 {
     ///@todo initialisation is very basic now. extend to configure with input file
-    if (!g_globals._contextRootLoggers.contains(_name))
-    {
-        g_globals._contextRootLoggers[_name] = 1;
-        //create layout
-        Log4Qt::TTCCLayout* layout = new Log4Qt::TTCCLayout();
-        //create file appender
-        Log4Qt::FileAppender* appender = new Log4Qt::FileAppender(layout,
-                                                                  _directory + "router.log",
-                                                                  true);
-        appender->setName("FileAppender");
-        appender->activateOptions();
-        //create logger
-        _logger = Log4Qt::Logger::logger(_name);
-        _logger->setAdditivity(false);
-        //for starters, let's log at debug level
-        _logger->setLevel(Log4Qt::Level(Log4Qt::Level::DEBUG_INT));
-        _logger->addAppender(appender);
-    }
-    else
-    {
-        _logger = Log4Qt::Logger::logger(_name);
-    }
+    //create layout
+    Log4Qt::TTCCLayout* layout = new Log4Qt::TTCCLayout();
+    //create file appender
+    Log4Qt::FileAppender* appender = new Log4Qt::FileAppender(layout,
+                                                              _directory + "router.log",
+                                                              true);
+    appender->setName("FileAppender");
+    appender->activateOptions();
+    //create logger
+    _logger = Log4Qt::Logger::logger(_name);
+    _logger->setAdditivity(false);
+    //for starters, let's log at debug level
+    _logger->setLevel(Log4Qt::Level(Log4Qt::Level::DEBUG_INT));
+    _logger->addAppender(appender);
 }
 
 QString Context::name() const
