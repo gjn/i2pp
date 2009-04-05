@@ -26,7 +26,7 @@
 using namespace i2pp::core;
 
 //static
-quint64 NtpClient::currentOffset(QStringList servers)
+qint32 NtpClient::currentOffset(QStringList servers)
 {
     Log4Qt::Logger* logger = Context::globalContext()->logger("NtpClient");
 
@@ -57,33 +57,53 @@ quint64 NtpClient::currentOffset(QStringList servers)
 }
 
 //static
-quint64 NtpClient::currentOffset(QString server)
+qint32 NtpClient::currentOffset(QString server)
 {
     Log4Qt::Logger* logger = Context::globalContext()->logger("NtpClient");
+    QString strMessage = QString("Trying to get time offset from server %1.").arg(server);
+    logger->debug(strMessage);
 
     QUdpSocket udpSocket;
     udpSocket.connectToHost(server, 123);
+    if (!udpSocket.waitForConnected())
+    {
+        QString strMessage = QString("Failed to connect to server %1.").arg(server);
+        logger->debug(strMessage);
+        return 0;
+    }
     NtpMessage sendMessage;
     QByteArray sendArray = sendMessage.toByteArray();
 
-    ///@todo this write command results in a seg-fault
-    udpSocket.write(sendArray);
-    if (!udpSocket.waitForBytesWritten(10000))
-        return 0;
-    if (udpSocket.write(QByteArray("SYN")) != sendArray.size())
-    //if (udpSocket.write(sendArray) != sendArray.size())
+    if (udpSocket.write(sendArray) != sendArray.size())
     {
         udpSocket.disconnectFromHost();
+        if (udpSocket.state() != QAbstractSocket::UnconnectedState)
+            udpSocket.waitForDisconnected();
         QString strMessage = QString("Failed to send udp datagram to server %1.").arg(server);
         logger->debug(strMessage);
         return 0;
+    }
+
+    while (udpSocket.bytesAvailable() < sendArray.size())
+    {
+        if (!udpSocket.waitForReadyRead())
+        {
+            udpSocket.disconnectFromHost();
+            if (udpSocket.state() != QAbstractSocket::UnconnectedState)
+                udpSocket.waitForDisconnected();
+            QString strMessage = QString("Failed to recieve udp datagram from server %1.").arg(server);
+            logger->debug(strMessage);
+            return 0;
+        }
     }
 
     QByteArray recievedArray = udpSocket.read(sendArray.size());
     if (recievedArray.size() != sendArray.size())
     {
         udpSocket.disconnectFromHost();
-        QString strMessage = QString("Failed to recieve udp datagram from server %1.").arg(server);
+        if (udpSocket.state() != QAbstractSocket::UnconnectedState)
+            udpSocket.waitForDisconnected();
+        QString strMessage = QString("Failed to recieve correct number of bytes from server %1.").arg(server);
         logger->debug(strMessage);
         return 0;
     }
@@ -91,6 +111,8 @@ quint64 NtpClient::currentOffset(QString server)
     double destinationTime = (Time::milliSeconds()/1000.0) + NtpMessage::_secondsTo1970;
 
     udpSocket.disconnectFromHost();
+    if (udpSocket.state() != QAbstractSocket::UnconnectedState)
+        udpSocket.waitForDisconnected();
 
     NtpMessage recMessage(recievedArray);
     if ((recMessage._stratum < 1) || (recMessage._stratum > 15))
@@ -100,9 +122,9 @@ quint64 NtpClient::currentOffset(QString server)
         return 0;
     }
 
-    quint64 retval = quint64(((recMessage._recieveTime - recMessage._originateTime) + (recMessage._transmitTime - destinationTime)) / 500.0);
+    qint32 retval = qint32(((recMessage._recieveTime - recMessage._originateTime) + (recMessage._transmitTime - destinationTime)) * 500.0);
 
-    QString strMessage = QString("Time offset determined from server %1 is %2 ms").arg(server).arg(retval);
+    strMessage = QString("Time offset determined from server %1 is %2 ms").arg(server).arg(retval);
     logger->debug(strMessage);
     return retval;
 }

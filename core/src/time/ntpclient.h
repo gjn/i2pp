@@ -37,11 +37,11 @@ class NtpClient
 {
     public:
         ///returns offset in milliseconds of current system time versus ntp time.
-        ///returns -1 if no time from server could be retrieved (no connection, no servers specified)
-        static quint64 currentOffset(QStringList servers);
+        ///returns 0 if no time from server could be retrieved (no connection, no servers specified)
+        static qint32 currentOffset(QStringList servers);
 
     private:
-        static quint64 currentOffset(QString server);
+        static qint32 currentOffset(QString server);
 
 };
 

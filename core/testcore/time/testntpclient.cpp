@@ -30,12 +30,14 @@ TestNtpClient::TestNtpClient()
 
 void TestNtpClient::testWithConnection()
 {
-    //these tests need internet connection...so, we disable them by default
     QStringList servers;
     servers.append("0.pool.ntp.org");
     servers.append("1.pool.ntp.org");
     servers.append("2.pool.ntp.org");
-    ///@todo not working yet!
-    //i2pp::core::NtpClient::currentOffset(servers);
+    for (int i = 0; i < 10; i++)
+    {
+        //these tests need internet connection...so, we disable them by default
+        //i2pp::core::NtpClient::currentOffset(servers);
+    }
 }
 
