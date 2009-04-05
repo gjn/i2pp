@@ -15,18 +15,40 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
+#ifndef I2PP_CORE_RANDOM_H
+#define I2PP_CORE_RANDOM_H
+
+#include <QByteArray>
+
+namespace i2pp
+{
+namespace core
+{
+
+/*! Random class for i2pp
+  Use this class when you need prng somewhere in i2pp.
+  As of now, it uses the AutoSeedRandomGenerator of
+  crypto++ to genererate randomized bytes...but that
+  might change in the future.
+
+  @note
+  We make sure that these functions are thread-safe
 */
 
-#include "context.h"
+class Random
+{
+public:
+    /*! betting a number of random bytes
+      @param ba, this bytearray will be filled with random data.
+      @return false if an error occurs during generation, bytearray remains untouched.
+      @note It's adviced to check the return value
+      @note Zero sized byte array will remains untouched.
+    */
+    static bool getBytes(QByteArray& ba);
+};
 
-#include "time/time.h"
+}
+}
 
-#include "util/random.h"
-
-#endif // CORE_H
+#endif

@@ -15,18 +15,20 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
+#include "pc.h"
+#include "i2pptime.h"
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
-*/
+using namespace i2pp::core;
 
-#include "context.h"
+quint64 Time::milliSeconds()
+{
+    QDateTime current = QDateTime::currentDateTime();
+    return (quint64(current.toTime_t()) * 1000) + current.time().msec();
+}
 
-#include "time/time.h"
-
-#include "util/random.h"
-
-#endif // CORE_H
+QDateTime Time::maxDate()
+{
+    int nSize = sizeof(uint);
+    quint64 max = quint64(pow(2 , nSize * 8)-1);
+    return QDateTime::fromTime_t(max);
+}

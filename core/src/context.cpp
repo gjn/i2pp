@@ -84,9 +84,7 @@ Context* Context::instance(const QString& name)
     if (lname.isEmpty())
         lname = "global";
     if (!g_globals._instances.contains(lname))
-        g_globals._instances[lname] = new Context(lname);
-    if (g_globals._globalContext == NULL)
-        g_globals._globalContext = g_globals._instances[lname];
+        new Context(lname);
     return g_globals._instances[lname];
 }
 
@@ -94,6 +92,10 @@ Context::Context(const QString& name):
         _name(name)
         ,_directory(g_globals._rootDirectory + "context_" + name + QDir::separator())
 {
+    if (g_globals._globalContext == NULL)
+        g_globals._globalContext = this;
+    g_globals._instances[name] = this;
+
     init();
 }
 

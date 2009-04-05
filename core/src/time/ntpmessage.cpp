@@ -17,6 +17,7 @@
 */
 #include "pc.h"
 #include "ntpmessage.h"
+#include "i2pptime.h"
 
 #include <math.h>
 #include <cstdlib>
@@ -24,6 +25,8 @@
 using namespace i2pp::core;
 
 const quint32 NtpMessage::_secondsTo1970 = 2208988800U;
+const quint32 NtpMessage::_lastSecondEpoch = quint32(pow(2,31));
+const quint32 NtpMessage::_lastFirstEpoch = quint32(pow(2,32))-1;
 
 bool bRandInit = false;
 
@@ -38,9 +41,9 @@ NtpMessage::NtpMessage()
     _rootDelay = 0.0;
     _rootDispersion = 0.0;
     _referenceIdentifier = QByteArray((int)4,(byte)0);
-    _referenceTime = 0.0;
-    _originateTime = 0.0;
-    _recieveTime = 0.0;
+    _referenceTime = _lastSecondEpoch + 1;
+    _originateTime = _referenceTime;
+    _recieveTime = _referenceTime;
     nowUTC(_transmitTime);
 }
 
@@ -92,9 +95,14 @@ bool NtpMessage::operator==(const NtpMessage& other) const
 //static
 void NtpMessage::nowUTC(double& time)
 {
-    QDateTime current = QDateTime::currentDateTime();
-    //toTime_t returns seconds from 1.1.1970 to now in UTC
-    time = _secondsTo1970 + current.toTime_t() + current.time().msec() / 1000.0;
+    time = _secondsTo1970 + Time::milliSeconds() / 1000.0;
+}
+
+//static
+QDateTime NtpMessage::maxDate()
+{
+    quint64 max = quint64(_lastFirstEpoch) + _lastSecondEpoch;
+    return QDateTime::fromTime_t(max - _secondsTo1970);
 }
 
 //static
@@ -143,6 +151,10 @@ QByteArray NtpMessage::toByteArray()
 void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, const double& ts)
 {
     double timeStamp = ts;
+    //if we are later than 2036, then we assume it's second epoch
+    if (timeStamp > _lastFirstEpoch)
+        timeStamp -= _lastFirstEpoch;
+    Q_ASSERT(timeStamp >= 0.0 && timeStamp <= _lastFirstEpoch);
     // Converts a double into a 64-bit fixed point
     for(int i=0; i<8; i++)
     {
@@ -161,9 +173,9 @@ void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, const double& t
     if (!bRandInit)
     {
         bRandInit = true;
-        srand(timeStamp); //seed once with time
+        qsrand(int(ts*1000.0)); //seed once with time
     }
-    ba[startIndex+7] = (byte) (rand() % 255);
+    ba[startIndex+7] = (byte) (qrand() % 255);
 }
 
 double NtpMessage::decodeTimestamp(const QByteArray& ba, int startIndex)
@@ -173,5 +185,9 @@ double NtpMessage::decodeTimestamp(const QByteArray& ba, int startIndex)
     {
          r += unsignedByteToShort(ba[startIndex+i]) * pow(2, (3-i)*8);
     }
+    //let's see if we are in second epoch
+    if (r <= _lastSecondEpoch)
+        r += _lastFirstEpoch;
+    Q_ASSERT(r > _lastSecondEpoch && r <= (quint64(_lastSecondEpoch) + quint64(_lastFirstEpoch)));
     return r;
 }

@@ -18,8 +18,10 @@
 INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/..
 HEADERS += \
-    $$PWD/testntpmessage.h
-    
+    $$PWD/testntpmessage.h \
+    $$PWD/testi2pptime.h
+
 SOURCES += \
-    $$PWD/testntpmessage.cpp
-	
+    $$PWD/testntpmessage.cpp \
+    $$PWD/testi2pptime.cpp
+

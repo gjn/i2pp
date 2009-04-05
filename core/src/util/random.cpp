@@ -15,18 +15,29 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
+#include "pc.h"
+#include "random.h"
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
-*/
+#include "cryptopp/osrng.h"
 
-#include "context.h"
+using namespace i2pp::core;
 
-#include "time/time.h"
+class i2ppRandomHelper
+{
+    public:
+        i2ppRandomHelper()
+        {
+        }
 
-#include "util/random.h"
+//        CryptoPP::AutoSeededRandomPool _prng;
+        QMutex _mutex;
+};
 
-#endif // CORE_H
+static i2ppRandomHelper g_helper;
+
+//static
+bool Random::getBytes(QByteArray& ba)
+{
+    return false;
+}
+

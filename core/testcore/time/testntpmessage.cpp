@@ -32,8 +32,11 @@ void TestNtpMessage::testContants()
 {
     QVERIFY(2208988800U == i2pp::core::NtpMessage::_secondsTo1970);
     //if this one below fails, it is very likely that NtpMessage is not working correctly
-    //anymore, or soon will not work anymore. See RFC 2030. Code needs adaption.
-    QVERIFY(QDateTime(QDate(2036,2,7),QTime(0,0,0)) > QDateTime::currentDateTime());
+    //anymore, or soon will not work anymore. See RFC 2030. Code needs adaption,
+    //to support second epoch.
+    QDateTime max = i2pp::core::NtpMessage::maxDate();
+    std::cout << "Max ntpmessage time = " << qPrintable(max.toString("yyyy-MM-dd hh::mm::ss")) << std::endl;
+    QVERIFY(QDateTime::currentDateTime() < max);
 }
 
 void TestNtpMessage::testParsing()
@@ -43,4 +46,3 @@ void TestNtpMessage::testParsing()
     i2pp::core::NtpMessage otherMessage(ba);
     QVERIFY(newMessage == otherMessage);
 }
-

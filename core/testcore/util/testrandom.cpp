@@ -15,18 +15,23 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
-*/
-
-#include "context.h"
-
-#include "time/time.h"
-
+#include "testrandom.h"
 #include "util/random.h"
+#include "qtestext.h"
 
-#endif // CORE_H
+#include <iostream>
+
+QTESTEXT_ADD_TO(TestRandom,core_util);
+
+TestRandom::TestRandom()
+{
+}
+
+void TestRandom::testSimple()
+{
+    QByteArray ba(20,0);
+    QVERIFY(!i2pp::core::Random::getBytes(ba));
+    QVERIFY(ba.size() == 20);
+}
+

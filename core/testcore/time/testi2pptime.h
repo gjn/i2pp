@@ -15,18 +15,18 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
+#ifndef TESTI2PPTIME_H
+#define TESTI2PPTIME_H
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
-*/
+#include <QObject>
 
-#include "context.h"
+class TestI2ppTime : public QObject
+{
+    Q_OBJECT
+    public:
+        TestI2ppTime();
+    private slots:
+        void testMax();
+};
 
-#include "time/time.h"
-
-#include "util/random.h"
-
-#endif // CORE_H
+#endif

@@ -18,6 +18,8 @@
 #ifndef I2PP_CORE_NTPMESSAGE_H
 #define I2PP_CORE_NTPMESSAGE_H
 
+#include <QDateTime>
+
 namespace i2pp
 {
 namespace core
@@ -26,7 +28,9 @@ namespace core
 /*! NtpMessage
     Simple wrapper to represent an NtpMessage.
     @warning
-    This class stops working after at about the 7th of February 2036
+    This class stops working after at about the 26th of February 2104. We achieve
+    this by following the RFC2030 recommendation in that we assume if the most
+    significant bit of the time value is not set, we are in the second epoch.
 
     Basically, this is a copy of Java implementation in i2p
 */
@@ -42,9 +46,14 @@ class NtpMessage
 
         ///is the timeoffset (as seconds) from 1900-01-01 00:00:00 to 1970-01-01 00:00:00
         static const quint32 _secondsTo1970;
+        ///returns the maximum date the current implementation is supporting
+        static QDateTime maxDate();
+
         void encodeTimestamp(QByteArray& ba, int startIndex, const double& timeStamp);
         double decodeTimestamp(const QByteArray& ba, int startIndex);
     protected:
+        static const quint32 _lastSecondEpoch; //32 bit int with bits 011111...1111
+        static const quint32 _lastFirstEpoch; //32 bit int with 1111111...1111
         //get's now as seconds from 1900-01-01 00:00:00 in UTC
         static void nowUTC(double&);
         static short unsignedByteToShort(byte b);

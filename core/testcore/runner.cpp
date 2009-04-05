@@ -43,9 +43,9 @@ void Runner::run()
     ncount += nDummy;
     std::cout  << "*************************************************************************" << std::endl;
     if (_retVal > 0)
-        std::cout << _retVal << " Failure(s)! (" << ncount << " classes tested)" << std::endl;
+        std::cout << _retVal << " Failure(s)! (" << ncount << " test classes)" << std::endl;
     else
-        std::cout << "0 Failures (" << ncount << " classes tested)" << std::endl;
+        std::cout << "0 Failures (" << ncount << " test classes)" << std::endl;
     std::cout  << "*************************************************************************" << std::endl;
 }
 

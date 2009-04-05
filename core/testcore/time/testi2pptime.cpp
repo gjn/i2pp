@@ -15,18 +15,25 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
-*/
+#include "testi2pptime.h"
+#include "time/i2pptime.h"
+#include "qtestext.h"
 
-#include "context.h"
+#include <iostream>
 
-#include "time/time.h"
+QTESTEXT_ADD_TO(TestI2ppTime,core_time);
 
-#include "util/random.h"
+TestI2ppTime::TestI2ppTime()
+{
+}
 
-#endif // CORE_H
+void TestI2ppTime::testMax()
+{
+    QDateTime max = i2pp::core::Time::maxDate();
+    std::cout << "Max i2pp time = " << qPrintable(max.toString("yyyy-MM-dd hh::mm::ss")) << std::endl;
+    //if this one below fails, it is very likely that the times currently
+    //provided by i2pp::core::time class are out of range!
+    QVERIFY(QDateTime::currentDateTime() < max);
+}
+

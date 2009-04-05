@@ -15,18 +15,28 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
-*/
+#ifndef I2PP_CORE_TIME_H
+#define I2PP_CORE_TIME_H
 
-#include "context.h"
+#include <QDateTime>
 
-#include "time/time.h"
+namespace i2pp
+{
+namespace core
+{
 
-#include "util/random.h"
+class Time
+{
+public:
+    ///returns milliseconds since 1970-01-01 00:00 in UTC
+    static quint64 milliSeconds();
 
-#endif // CORE_H
+    ///returns the maximum date supported by the milliSeconds function
+    static QDateTime maxDate();
+};
+
+}
+}
+
+#endif // TIME_H

@@ -15,18 +15,26 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef I2PP_CORE_H
-#define I2PP_CORE_H
+#include "pc.h"
+#include "ntpclient.h"
 
-/* This header file should be enough to include
-   for external libs/applications. It includes all
-   other header files of the include directory.
-*/
+using namespace i2pp::core;
 
-#include "context.h"
+//static
+quint64 NtpClient::currentTime(QStringList servers)
+{
+    if (servers.size() <= 0)
+        return 0;
+    //randomize the server list if there are more than one
+    if (servers.size() != 1)
+    {
+        QStringList loc;
+    }
+    return 0;
+}
 
-#include "time/time.h"
-
-#include "util/random.h"
-
-#endif // CORE_H
+//static
+quint64 NtpClient::currentTime(QString server)
+{
+    return 0;
+}
