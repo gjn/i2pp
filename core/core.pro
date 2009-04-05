@@ -23,7 +23,9 @@ INCLUDEPATH += \
     include/util \
     src \
     ../log4qt/src
+
 LIBS += -lcryptopp
+
 PRECOMPILED_HEADER = src/pc.h
 CONFIG(debug, debug|release) { 
     TARGET = $$join(TARGET,,,D)
