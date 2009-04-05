@@ -73,3 +73,21 @@ QByteArray Random::getBytes(unsigned int size)
         return ba;
     return QByteArray(0,char(0));
 }
+
+bool Random::integer(quint32& result, quint32 start, quint32 end)
+{
+    QMutexLocker locker(&_mutex);
+    try
+    {
+        result = _prng->GenerateWord32(start, end);
+    }
+    catch (...)
+    {
+        QString strMessage = QString("An error occured while trying to generate a random 32 bit integer. Exception thrown by crypto++ library");
+        _logger->error(strMessage);
+        return false;
+    }
+    QString strMessage = QString("%1 random 32 bit integer generated.").arg(result);
+    _logger->debug(strMessage);
+    return true;
+}

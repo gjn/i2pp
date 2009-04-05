@@ -30,6 +30,7 @@ namespace i2pp
 namespace core
 {
 
+class Random;
 /*! Context
   A context is a single-point of access to comonly used
   components of i2pp. These components include
@@ -102,6 +103,11 @@ class Context {
         */
         Log4Qt::Logger* logger(QString name);
 
+        /*! random
+          Provides access to randomizing functions
+        */
+        Random* random();
+
     private:
         Context(const QString& name);
         Context(const Context& other); //disable copy constructor
@@ -117,6 +123,7 @@ class Context {
         QSettings* _settings; //router settings
 
         Log4Qt::Logger* _logger; //this contexts logger
+        Random* _random;
 };
 
 }

@@ -64,6 +64,14 @@ public:
     */
     QByteArray getBytes(unsigned int size);
 
+    /*! getting a random 32 bit integer between the given ranges (inclusive)
+      @param start minimum value
+      @param end maximim value
+      @param result the random 32 bit integer
+      @return success or not
+    */
+    bool integer(quint32& result, quint32 start = 0, quint32 end = 0xffffffffL);
+
 protected:
     void init(Context* pContext);
 

@@ -17,6 +17,7 @@
 */
 #include "pc.h"
 #include "context.h"
+#include "random.h"
 #include "log4qt/ttcclayout.h"
 #include "log4qt/fileappender.h"
 
@@ -125,6 +126,8 @@ void Context::init()
     curDir.mkpath(_directory);
     QString filepath = _directory + "router." + g_globals._confSuffix;
     _settings = new QSettings(filepath, g_globals._format);
+
+    _random = new Random(this);
 }
 
 void Context::initLogger()

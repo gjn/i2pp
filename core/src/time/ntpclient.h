@@ -15,6 +15,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
+
 #ifndef I2PP_CORE_NTPCLIENT_H
 #define I2PP_CORE_NTPCLIENT_H
 
@@ -25,23 +26,22 @@ namespace core
 
 /*! NtpClient
     Simple NtpClient that gets current time from given time servers
-    and returns an time offset in milliseconds of the current time
+    and returns an time offset in milliseconds of the current system time
     versus the ntp time.
-    It tries a list of servers and returns after the first server
-    responded.
+    It tries a list of servers and returns after the first server (which is
+    shuffled) responded.
     @warning
-    This class stops working after at about the 7th of February 2036.
-    See NtpMessage class for details.
+    This class stops working after in February 2104.See NtpMessage class for details.
 */
 class NtpClient
 {
     public:
-        ///returns current ntp time in milliseconds since january 1970 UTC
-        ///return 0 if no time from server could be retrieved (no connection, no servers specified)
-        static quint64 currentTime(QStringList servers);
+        ///returns offset in milliseconds of current system time versus ntp time.
+        ///returns -1 if no time from server could be retrieved (no connection, no servers specified)
+        static quint64 currentOffset(QStringList servers);
 
     private:
-        static quint64 currentTime(QString server);
+        static quint64 currentOffset(QString server);
 
 };
 

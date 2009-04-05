@@ -17,7 +17,7 @@
 
 TEMPLATE = app
 
-QT += testlib
+QT += testlib network
 QT -= gui
 
 TARGET = testcore

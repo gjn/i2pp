@@ -49,12 +49,18 @@ class NtpMessage
         ///returns the maximum date the current implementation is supporting
         static QDateTime maxDate();
 
-        void encodeTimestamp(QByteArray& ba, int startIndex, const double& timeStamp);
-        double decodeTimestamp(const QByteArray& ba, int startIndex);
+        //all times are as seconds from 01.01.1900 00:00:00
+        short _stratum;
+        double _referenceTime;
+        double _originateTime;
+        double _recieveTime;
+        double _transmitTime;
     protected:
         static const quint32 _lastSecondEpoch; //32 bit int with bits 011111...1111
         static const quint32 _lastFirstEpoch; //32 bit int with 1111111...1111
         //get's now as seconds from 1900-01-01 00:00:00 in UTC
+        void encodeTimestamp(QByteArray& ba, int startIndex, const double& timeStamp);
+        double decodeTimestamp(const QByteArray& ba, int startIndex);
         static void nowUTC(double&);
         static short unsignedByteToShort(byte b);
 
@@ -62,17 +68,11 @@ class NtpMessage
         byte _leapIndicator;
         byte _version;
         byte _mode;
-        short _stratum;
         byte _pollInterval;
         byte _precision;
         double _rootDelay;
         double _rootDispersion;
         QByteArray _referenceIdentifier;
-        //all times are as seconds from 01.01.1900 00:00:00
-        double _referenceTime;
-        double _originateTime;
-        double _recieveTime;
-        double _transmitTime;
 };
 
 }
