@@ -18,6 +18,7 @@
 #include "pc.h"
 #include "ntpmessage.h"
 #include "i2pptime.h"
+#include "random.h"
 
 #include <math.h>
 #include <cstdlib>
@@ -170,12 +171,9 @@ void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, const double& t
     // bitstring, both to avoid systematic roundoff errors and as
     // a means of loop detection and replay detection.
     // the below should be sufficient for our needs
-    if (!bRandInit)
-    {
-        bRandInit = true;
-        qsrand(int(ts*1000.0)); //seed once with time
-    }
-    ba[startIndex+7] = (byte) (qrand() % 255);
+    QByteArray randbyte = Random().getBytes(1);
+    if (ba.size() == 1)
+        ba[startIndex+7] = (byte) randbyte[0];
 }
 
 double NtpMessage::decodeTimestamp(const QByteArray& ba, int startIndex)

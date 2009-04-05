@@ -18,26 +18,58 @@
 #include "pc.h"
 #include "random.h"
 
-#include "cryptopp/osrng.h"
-
 using namespace i2pp::core;
 
-class i2ppRandomHelper
+Random::Random()
 {
-    public:
-        i2ppRandomHelper()
-        {
-        }
-
-//        CryptoPP::AutoSeededRandomPool _prng;
-        QMutex _mutex;
-};
-
-static i2ppRandomHelper g_helper;
-
-//static
-bool Random::getBytes(QByteArray& ba)
-{
-    return false;
+    init(NULL);
 }
 
+Random::Random(Context* pContext)
+{
+    init(pContext);
+}
+
+Random::~Random()
+{
+    if (_prng)
+        delete _prng;
+}
+
+void Random::init(Context* pContext)
+{
+    _ctx = pContext;
+    if (_ctx == NULL)
+        _ctx = Context::globalContext();
+    _logger = _ctx->logger("Random");
+    _prng = new CryptoPP::AutoSeededRandomPool();
+}
+
+bool Random::getBytes(QByteArray& ba)
+{
+    if (ba.size() <= 0)
+        return false;
+
+    QMutexLocker locker(&_mutex);
+    try
+    {
+        _prng->GenerateBlock( (byte*) ba.data(), ba.size());
+    }
+    catch (...)
+    {
+        QString strMessage = QString("An error occured while trying to generate %1 random bytes. Exception thrown by crypto++ library").arg(ba.size());
+        _logger->error(strMessage);
+        return false;
+    }
+    QString strMessage = QString("%1 random bytes successfully generated.").arg(ba.size());
+    _logger->debug(strMessage);
+    return true;
+}
+
+QByteArray Random::getBytes(unsigned int size)
+{
+    QByteArray ba(size,char(0));
+    if (getBytes(ba))
+        return ba;
+    return QByteArray(0,char(0));
+}

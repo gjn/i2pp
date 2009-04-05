@@ -31,7 +31,14 @@ TestRandom::TestRandom()
 void TestRandom::testSimple()
 {
     QByteArray ba(20,0);
-    QVERIFY(!i2pp::core::Random::getBytes(ba));
+    i2pp::core::Random random;
+    QVERIFY(random.getBytes(ba));
     QVERIFY(ba.size() == 20);
+    QByteArray bb = ba;
+    QVERIFY(random.getBytes(ba));
+    QVERIFY(ba.size() == 20);
+    QVERIFY(ba != bb);
+    std::cout << "first created random bytes (base64 encoded: " << QString(bb.toBase64().data()).toStdString().c_str() << std::endl;
+    std::cout << "second created random bytes (base64 encoded: " << QString(ba.toBase64().data()).toStdString().c_str() << std::endl;
 }
 
