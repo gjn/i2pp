@@ -34,7 +34,8 @@ INCLUDEPATH +=  \
 win32:INCLUDEPATH += ../..
 
 LIBS += -L../lib/ \
-    -L../../qtestext/lib/
+    -L../../qtestext/lib/ \
+    -lbotan
 
 !win32: LIBS += -lcryptopp
 

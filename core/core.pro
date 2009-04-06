@@ -26,6 +26,8 @@ INCLUDEPATH += \
 
 win32:INCLUDEPATH += ..
 
+LIBS+= -lbotan
+
 !win32:LIBS += -lcryptopp
 
 PRECOMPILED_HEADER = src/pc.h

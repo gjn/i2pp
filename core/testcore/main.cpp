@@ -19,6 +19,9 @@
 #include "runner.h"
 #include <QTimer>
 
+#include <botan/botan.h>
+
+Botan::LibraryInitializer init;
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc,argv);

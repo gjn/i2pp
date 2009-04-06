@@ -27,6 +27,9 @@
 
 #include "cryptopp/osrng.h"
 
+#include "botan/x931_rng.h"
+
+
 namespace i2pp
 {
 namespace core
@@ -78,6 +81,7 @@ protected:
     Context* _ctx; //reference
     Log4Qt::Logger* _logger;
     CryptoPP::AutoSeededRandomPool* _prng; //owner
+    Botan::ANSI_X931_RNG* _botanprng;
     QMutex _mutex;
 };
 

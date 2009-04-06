@@ -18,6 +18,8 @@
 #include "pc.h"
 #include "random.h"
 
+#include "i2pptime.h"
+
 using namespace i2pp::core;
 
 Random::Random()
@@ -34,6 +36,9 @@ Random::~Random()
 {
     if (_prng)
         delete _prng;
+
+    if (_botanprng)
+        delete _botanprng;
 }
 
 void Random::init(Context* pContext)
@@ -43,6 +48,10 @@ void Random::init(Context* pContext)
         _ctx = Context::globalContext();
     _logger = _ctx->logger("Random");
     _prng = new CryptoPP::AutoSeededRandomPool();
+
+    _botanprng = new Botan::ANSI_X931_RNG();
+    quint64 currentTime = Time::milliSeconds();
+    _botanprng->add_entropy((byte*)&currentTime, 8);
 }
 
 bool Random::getBytes(QByteArray& ba)
@@ -53,7 +62,9 @@ bool Random::getBytes(QByteArray& ba)
     QMutexLocker locker(&_mutex);
     try
     {
-        _prng->GenerateBlock( (byte*) ba.data(), ba.size());
+//        _prng->GenerateBlock( (byte*) ba.data(), ba.size());
+        bool bIsSeeded = _botanprng->is_seeded();
+        _botanprng->randomize((byte*)ba.data(), ba.size());
     }
     catch (...)
     {
