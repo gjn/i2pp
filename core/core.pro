@@ -24,7 +24,9 @@ INCLUDEPATH += \
     src \
     ../log4qt/src
 
-LIBS += -lcryptopp
+win32:INCLUDEPATH += ..
+
+!win32:LIBS += -lcryptopp
 
 PRECOMPILED_HEADER = src/pc.h
 CONFIG(debug, debug|release) { 
@@ -32,6 +34,7 @@ CONFIG(debug, debug|release) {
     DEFINES += DEBUG
 }
 win32:DEFINES += WIN32
+win32:include(../cryptopp/cryptopp.pri)
 include(../log4qt/src/log4qt/log4qt.pri)
 include(./src/time/time.pri)
 include(./src/util/util.pri)

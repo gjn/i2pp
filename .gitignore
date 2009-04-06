@@ -9,3 +9,4 @@ Makefile*
 qtestext/qtestextsample/runsamples
 core/testcore/testcore
 *object_script*.*
+cryptopp
