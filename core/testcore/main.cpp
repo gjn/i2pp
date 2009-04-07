@@ -21,7 +21,11 @@
 
 #include <botan/botan.h>
 
+/* Note: we have to initialize botan in the final application. It doesn't
+   work in the static library as a global and/or static
+*/
 Botan::LibraryInitializer init;
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc,argv);

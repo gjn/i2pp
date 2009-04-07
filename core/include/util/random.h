@@ -19,16 +19,16 @@
 #ifndef I2PP_CORE_RANDOM_H
 #define I2PP_CORE_RANDOM_H
 
-#include <QByteArray>
-#include <QMutex>
-
 #include "context.h"
 #include "log4qt/logger.h"
 
-#include "cryptopp/osrng.h"
+#include <QByteArray>
+#include <QMutex>
 
-#include "botan/x931_rng.h"
-
+namespace Botan
+{
+    class AutoSeeded_RNG;
+}
 
 namespace i2pp
 {
@@ -48,9 +48,8 @@ namespace core
 
 class Random
 {
+friend class Context;
 public:
-    Random();
-    Random(Context* pContext);
     virtual ~Random();
     /*! getting a number of random bytes
       @param ba, this bytearray will be filled with random data.
@@ -67,21 +66,19 @@ public:
     */
     QByteArray getBytes(unsigned int size);
 
-    /*! getting a random 32 bit integer between the given ranges (inclusive)
-      @param start minimum value
-      @param end maximim value
-      @param result the random 32 bit integer
+    /*! getting a random byte
+      @param the byte to  randomize
       @return success or not
     */
-    bool integer(quint32& result, quint32 start = 0, quint32 end = 0xffffffffL);
+    bool getByte(char& b);
 
 protected:
+    Random(Context* pContext);
     void init(Context* pContext);
 
     Context* _ctx; //reference
     Log4Qt::Logger* _logger;
-    CryptoPP::AutoSeededRandomPool* _prng; //owner
-    Botan::ANSI_X931_RNG* _botanprng;
+    Botan::AutoSeeded_RNG* _prng;
     QMutex _mutex;
 };
 

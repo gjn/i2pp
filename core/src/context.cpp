@@ -184,3 +184,8 @@ Log4Qt::Logger* Context::logger(QString name)
     else
       return Log4Qt::Logger::logger(QString(_name+"::"+name));
 }
+
+Random* Context::random()
+{
+    return _random;
+}

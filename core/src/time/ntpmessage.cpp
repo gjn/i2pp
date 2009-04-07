@@ -29,8 +29,6 @@ const quint32 NtpMessage::_secondsTo1970 = 2208988800U;
 const quint32 NtpMessage::_lastSecondEpoch = quint32(pow(2,31));
 const quint32 NtpMessage::_lastFirstEpoch = quint32(pow(2,32))-1;
 
-bool bRandInit = false;
-
 NtpMessage::NtpMessage()
 {
     _leapIndicator = 0;
@@ -171,9 +169,9 @@ void NtpMessage::encodeTimestamp(QByteArray& ba, int startIndex, const double& t
     // bitstring, both to avoid systematic roundoff errors and as
     // a means of loop detection and replay detection.
     // the below should be sufficient for our needs
-    QByteArray randbyte = Random().getBytes(1);
-    if (ba.size() == 1)
-        ba[startIndex+7] = (byte) randbyte[0];
+    byte randByte;
+    if (Context::globalContext()->random()->getByte(randByte))
+        ba[startIndex+7] = randByte;
 }
 
 double NtpMessage::decodeTimestamp(const QByteArray& ba, int startIndex)

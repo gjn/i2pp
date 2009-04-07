@@ -17,15 +17,12 @@
 */
 #include "pc.h"
 #include "random.h"
-
 #include "i2pptime.h"
 
-using namespace i2pp::core;
+#include "botan/auto_rng.h"
 
-Random::Random()
-{
-    init(NULL);
-}
+
+using namespace i2pp::core;
 
 Random::Random(Context* pContext)
 {
@@ -36,9 +33,6 @@ Random::~Random()
 {
     if (_prng)
         delete _prng;
-
-    if (_botanprng)
-        delete _botanprng;
 }
 
 void Random::init(Context* pContext)
@@ -47,11 +41,15 @@ void Random::init(Context* pContext)
     if (_ctx == NULL)
         _ctx = Context::globalContext();
     _logger = _ctx->logger("Random");
-    _prng = new CryptoPP::AutoSeededRandomPool();
+    _prng = 0;
+    try
+    {
+        _prng = new Botan::AutoSeeded_RNG();
+    }
+    catch(...)
+    {
 
-    _botanprng = new Botan::ANSI_X931_RNG();
-    quint64 currentTime = Time::milliSeconds();
-    _botanprng->add_entropy((byte*)&currentTime, 8);
+    }
 }
 
 bool Random::getBytes(QByteArray& ba)
@@ -59,16 +57,23 @@ bool Random::getBytes(QByteArray& ba)
     if (ba.size() <= 0)
         return false;
 
-    QMutexLocker locker(&_mutex);
-    try
+    if (_prng)
     {
-//        _prng->GenerateBlock( (byte*) ba.data(), ba.size());
-        bool bIsSeeded = _botanprng->is_seeded();
-        _botanprng->randomize((byte*)ba.data(), ba.size());
+        QMutexLocker locker(&_mutex);
+        try
+        {
+            _prng->randomize(reinterpret_cast<unsigned char*>(ba.data()), ba.size());
+        }
+        catch (...)
+        {
+            QString strMessage = QString("An error occured while trying to generate %1 random bytes. Exception thrown by baton library").arg(ba.size());
+            _logger->error(strMessage);
+            return false;
+        }
     }
-    catch (...)
+    else
     {
-        QString strMessage = QString("An error occured while trying to generate %1 random bytes. Exception thrown by crypto++ library").arg(ba.size());
+        QString strMessage = QString("An error occured while trying to generate %1 random bytes. Randomizer not initialised.").arg(ba.size());
         _logger->error(strMessage);
         return false;
     }
@@ -85,20 +90,29 @@ QByteArray Random::getBytes(unsigned int size)
     return QByteArray(0,char(0));
 }
 
-bool Random::integer(quint32& result, quint32 start, quint32 end)
+bool Random::getByte(char& b)
 {
-    QMutexLocker locker(&_mutex);
-    try
+    if (_prng)
     {
-        result = _prng->GenerateWord32(start, end);
+        QMutexLocker locker(&_mutex);
+        try
+        {
+            b = _prng->next_byte();
+        }
+        catch (...)
+        {
+            QString strMessage = QString("An error occured while trying to generate one random byte. Exception thrown by baton library");
+            _logger->error(strMessage);
+            return false;
+        }
     }
-    catch (...)
+    else
     {
-        QString strMessage = QString("An error occured while trying to generate a random 32 bit integer. Exception thrown by crypto++ library");
+        QString strMessage = QString("An error occured while trying to generate one random byte. Randomizer not initialized.");
         _logger->error(strMessage);
         return false;
     }
-    QString strMessage = QString("%1 random 32 bit integer generated.").arg(result);
+    QString strMessage = QString("one random byte successfully generated.");
     _logger->debug(strMessage);
     return true;
 }

@@ -18,6 +18,7 @@
 
 #include "testrandom.h"
 #include "util/random.h"
+#include "context.h"
 #include "qtestext.h"
 
 #include <iostream>
@@ -31,20 +32,14 @@ TestRandom::TestRandom()
 void TestRandom::testSimple()
 {
     QByteArray ba(20,0);
-    i2pp::core::Random random;
-    QVERIFY(random.getBytes(ba));
+    i2pp::core::Random* random = i2pp::core::Context::globalContext()->random();
+    QVERIFY(random->getBytes(ba));
     QVERIFY(ba.size() == 20);
     QByteArray bb = ba;
-    QVERIFY(random.getBytes(ba));
+    QVERIFY(random->getBytes(ba));
     QVERIFY(ba.size() == 20);
     QVERIFY(ba != bb);
     std::cout << "first created random bytes (base64 encoded): " << QString(bb.toBase64().data()).toStdString().c_str() << std::endl;
     std::cout << "second created random bytes (base64 encoded): " << QString(ba.toBase64().data()).toStdString().c_str() << std::endl;
-    quint32 n1;
-    QVERIFY(random.integer(n1, 500, 1000));
-    std::cout << "generated first random 32 bit integer between 500 and 1000: " << n1 << std::endl;
-    quint32 n2;
-    QVERIFY(random.integer(n2, 500, 1000));
-    std::cout << "generated second random 32 bit integer between 500 and 1000: " << n2 << std::endl;
 }
 

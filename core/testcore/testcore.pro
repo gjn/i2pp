@@ -31,13 +31,9 @@ INCLUDEPATH +=  \
     ../../qtestext/include \
     ../../log4qt/src
 
-win32:INCLUDEPATH += ../..
-
 LIBS += -L../lib/ \
     -L../../qtestext/lib/ \
     -lbotan
-
-!win32: LIBS += -lcryptopp
 
 CONFIG(release, debug|release){
     LIBS += -lqtestext \

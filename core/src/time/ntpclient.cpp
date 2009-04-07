@@ -38,6 +38,8 @@ qint32 NtpClient::currentOffset(QStringList servers)
     //randomize the server list if there are more than one
     if (servers.size() > 1)
     {
+        ///@todo do server shuffling
+        /*
         int nSize = servers.size();
         Random random;
         for (int i=0; i < nSize; i++)
@@ -46,6 +48,7 @@ qint32 NtpClient::currentOffset(QStringList servers)
             if (random.integer(randomNr, 0, nSize - i - 1))
                 servers.swap(i, i + randomNr);
         }
+        */
     }
     for (int i = 0; i < servers.size(); i++)
     {
