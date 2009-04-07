@@ -86,7 +86,7 @@ void Random::logInitFinished()
             #endif
         #endif
 
-        QString strEntropies = "Randomizer uses the following entropies:";
+        QString strEntropies = "Randomizer uses the following as entropies (if available):";
         #if defined(BOTAN_HAS_TIMER_HARDWARE)
             strEntropies += " [Hardware_Timer]";
         #endif
