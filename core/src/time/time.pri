@@ -15,7 +15,7 @@ INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/..
 HEADERS += $$PWD/ntpmessage.h \
     $$PWD/ntpclient.h \
-    $$PWD/../../include/time/i2pptime.h
+    $$PWD/../../include/time/systemtime.h
 SOURCES += $$PWD/ntpmessage.cpp \
     $$PWD/ntpclient.cpp \
-    $$PWD/i2pptime.cpp
+    $$PWD/systemtime.cpp
