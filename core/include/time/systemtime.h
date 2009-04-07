@@ -26,7 +26,7 @@ namespace i2pp
 namespace core
 {
 
-class Time
+class SystemTime
 {
 public:
     ///returns milliseconds since 1970-01-01 00:00 in UTC

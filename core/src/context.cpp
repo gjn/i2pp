@@ -122,12 +122,17 @@ void Context::init()
     //init the loggers as early as possible, so we have it
     initLogger();
 
+    _logger->info("Starting to initialise core::Context as '%1'", _name);
+
     QDir curDir = QDir(_directory);
     curDir.mkpath(_directory);
     QString filepath = _directory + "router." + g_globals._confSuffix;
     _settings = new QSettings(filepath, g_globals._format);
 
     _random = new Random(this);
+
+
+    _logger->info("End of initialisation core::Context with name '%1'", _name);
 }
 
 void Context::initLogger()

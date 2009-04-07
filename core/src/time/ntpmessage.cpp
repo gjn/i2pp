@@ -17,7 +17,7 @@
 */
 #include "pc.h"
 #include "ntpmessage.h"
-#include "i2pptime.h"
+#include "systemtime.h"
 #include "random.h"
 
 #include <math.h>
@@ -94,7 +94,7 @@ bool NtpMessage::operator==(const NtpMessage& other) const
 //static
 void NtpMessage::nowUTC(double& time)
 {
-    time = _secondsTo1970 + Time::milliSeconds() / 1000.0;
+    time = _secondsTo1970 + SystemTime::milliSeconds() / 1000.0;
 }
 
 //static

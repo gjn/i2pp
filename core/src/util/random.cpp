@@ -17,7 +17,6 @@
 */
 #include "pc.h"
 #include "random.h"
-#include "i2pptime.h"
 
 #include "botan/auto_rng.h"
 
@@ -35,12 +34,27 @@ Random::~Random()
         delete _prng;
 }
 
+Random::Random(const Random& other)
+{
+    UNUSED_PARAMETER(other);
+}
+
+Random&  Random::operator = (const Random& other)
+{
+    UNUSED_PARAMETER(other);
+    return *this;
+}
+
+
 void Random::init(Context* pContext)
 {
     _ctx = pContext;
     if (_ctx == NULL)
         _ctx = Context::globalContext();
     _logger = _ctx->logger("Random");
+
+    _logger->info("Starting to initialise Randomizer");
+
     _prng = 0;
     try
     {
@@ -50,6 +64,65 @@ void Random::init(Context* pContext)
     {
 
     }
+    logInitFinished();
+
+
+}
+
+void Random::logInitFinished()
+{
+    if (_prng == 0)
+    {
+        _logger->fatal("Unable to initialise Randomizer from Botan Library!");
+    }
+    else
+    {
+        _logger->info("Randomizer initialised with %1", _prng->name().c_str());
+        #if defined(BOTAN_HAS_X931_RNG)
+            #if defined(BOTAN_HAS_HMAC_RNG)
+                _logger->info("Randomizer is using HMAC_RNG");
+            #elif defined(BOTAN_HAS_RANDPOOL)
+                _logger->info("Randomizer is using Randpool");
+            #endif
+        #endif
+
+        QString strEntropies = "Randomizer uses the following entropies:";
+        #if defined(BOTAN_HAS_TIMER_HARDWARE)
+            strEntropies += " [Hardware_Timer]";
+        #endif
+        #if defined(BOTAN_HAS_TIMER_POSIX)
+            strEntropies += " [POSIX_Timer]";
+        #endif
+        #if defined(BOTAN_HAS_TIMER_UNIX)
+            strEntropies += " [Unix_Timer]";
+        #endif
+        #if defined(BOTAN_HAS_TIMER_WIN32)
+            strEntropies += " [Win32_Timer]";
+        #endif
+        #if defined(BOTAN_HAS_ENTROPY_SRC_DEVICE)
+            strEntropies += " [/dev/random] [/dev/srandom] [/dev/uandom]";
+        #endif
+        #if defined(BOTAN_HAS_ENTROPY_SRC_EGD)
+            strEntropies += " [/var/run/egd-pool] [/dev/egd-pool]";
+        #endif
+        #if defined(BOTAN_HAS_ENTROPY_SRC_CAPI)
+            strEntropies += " [Win32_CAPI_EntropySource]";
+        #endif
+        #if defined(BOTAN_HAS_ENTROPY_SRC_FTW)
+            strEntropies += " [/proc]";
+        #endif
+        #if defined(BOTAN_HAS_ENTROPY_SRC_WIN32)
+            strEntropies += " [Win32_EntropySource]";
+        #endif
+        #if defined(BOTAN_HAS_ENTROPY_SRC_BEOS)
+            strEntropies += " [BeOS_EntropySource]";
+        #endif
+        #if defined(BOTAN_HAS_ENTROPY_SRC_UNIX)
+            strEntropies += " [/bin] [/sbin] [/usr/bin] [/usr/sbin]";
+        #endif
+        _logger->info(strEntropies);
+   }
+
 }
 
 bool Random::getBytes(QByteArray& ba)

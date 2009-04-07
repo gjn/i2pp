@@ -16,21 +16,21 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "testi2pptime.h"
-#include "time/i2pptime.h"
+#include "testsystemtime.h"
+#include "time/systemtime.h"
 #include "qtestext.h"
 
 #include <iostream>
 
-QTESTEXT_ADD_TO(TestI2ppTime,core_time);
+QTESTEXT_ADD_TO(TestSystemTime,core_time);
 
-TestI2ppTime::TestI2ppTime()
+TestSystemTime::TestSystemTime()
 {
 }
 
-void TestI2ppTime::testMax()
+void TestSystemTime::testMax()
 {
-    QDateTime max = i2pp::core::Time::maxDate();
+    QDateTime max = i2pp::core::SystemTime::maxDate();
     std::cout << "Max i2pp time = " << qPrintable(max.toString("yyyy-MM-dd hh::mm::ss")) << std::endl;
     //if this one below fails, it is very likely that the times currently
     //provided by i2pp::core::time class are out of range!

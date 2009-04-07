@@ -15,16 +15,16 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#ifndef TESTI2PPTIME_H
-#define TESTI2PPTIME_H
+#ifndef TESTSYSTEMTIME_H
+#define TESTSYSTEMTIME_H
 
 #include <QObject>
 
-class TestI2ppTime : public QObject
+class TestSystemTime : public QObject
 {
     Q_OBJECT
     public:
-        TestI2ppTime();
+        TestSystemTime();
     private slots:
         void testMax();
 };

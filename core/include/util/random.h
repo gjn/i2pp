@@ -76,6 +76,11 @@ protected:
     Random(Context* pContext);
     void init(Context* pContext);
 
+    Random(const Random& other); //disable copy constructor
+    Random&  operator = (const Random& other); //disable assignement operator
+
+    void logInitFinished();
+
     Context* _ctx; //reference
     Log4Qt::Logger* _logger;
     Botan::AutoSeeded_RNG* _prng;

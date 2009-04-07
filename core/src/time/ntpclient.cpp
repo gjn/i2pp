@@ -19,7 +19,7 @@
 #include "ntpclient.h"
 #include "ntpmessage.h"
 #include "random.h"
-#include "i2pptime.h"
+#include "systemtime.h"
 
 #include <QUdpSocket>
 
@@ -111,7 +111,7 @@ qint32 NtpClient::currentOffset(QString server)
         return 0;
     }
     //get recieve time as fast as possible
-    double destinationTime = (Time::milliSeconds()/1000.0) + NtpMessage::_secondsTo1970;
+    double destinationTime = (SystemTime::milliSeconds()/1000.0) + NtpMessage::_secondsTo1970;
 
     udpSocket.disconnectFromHost();
     if (udpSocket.state() != QAbstractSocket::UnconnectedState)

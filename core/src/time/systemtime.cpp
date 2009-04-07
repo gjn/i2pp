@@ -16,17 +16,17 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 #include "pc.h"
-#include "i2pptime.h"
+#include "systemtime.h"
 
 using namespace i2pp::core;
 
-quint64 Time::milliSeconds()
+quint64 SystemTime::milliSeconds()
 {
     QDateTime current = QDateTime::currentDateTime();
     return (quint64(current.toTime_t()) * 1000) + current.time().msec();
 }
 
-QDateTime Time::maxDate()
+QDateTime SystemTime::maxDate()
 {
     int nSize = sizeof(uint);
     quint64 max = quint64(pow(2 , nSize * 8)-1);
