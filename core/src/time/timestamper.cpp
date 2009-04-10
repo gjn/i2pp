@@ -18,9 +18,12 @@
 #include "pc.h"
 #include "timestamper.h"
 
+#include "random.h"
+#include "ntpclient.h"
+
 using namespace i2pp::core;
 
-uint TimeStamper::s_maxVarianceMS = 10*1000; //if servers differ more than 10 seconds, we have a problem
+qint32 TimeStamper::s_maxVarianceMS = 10*1000; //if servers differ more than 10 seconds, we have a problem
 
 TimeStamper::TimeStamper(Context* pContext)
 {
@@ -35,13 +38,13 @@ TimeStamper::TimeStamper(Context* pContext)
 
 TimeStamper::~TimeStamper()
 {
+    //stopping the thread
     stop();
     //wakeup
     _wait.wakeAll();
     //wait until finished
     wait();
-
-    _logger->debug("timestamper deconstructed...yeah");
+    _logger->trace("timestamper deconstructed...yeah");
 }
 
 TimeStamper::TimeStamper(const TimeStamper& other)
@@ -79,6 +82,12 @@ bool TimeStamper::running()
     return _bRun;
 }
 
+bool TimeStamper::enabled()
+{
+    QReadLocker locker(&_lock);
+    return !_disabled;
+}
+
 void TimeStamper::stop()
 {
     QWriteLocker locker(&_lock);
@@ -87,18 +96,123 @@ void TimeStamper::stop()
 
 void TimeStamper::run()
 {
+    sleep(1); //wait one second
+
+    _logger->info("Starting up TimeStamper");
     while (running())
     {
+        //possibly configuration changed during runtime
         updateConfig();
+
+        //get values and have them locally
         _lock.lockForRead();
-        if (!_disabled)
+        QStringList servers = _serverList;
+        quint32 randomizedOffset = 0;
+        _ctx->random()->getUInt32(randomizedOffset, 0, _queryFrequenzMS);
+        uint sleepTime = _queryFrequenzMS + randomizedOffset;
+        _lock.unlock();
+
+        //do the stuff
+        if (enabled())
         {
-            //now do something here
-            _logger->debug("timestamper is doing something...yeah");
+            if (_logger->isDebugEnabled())
+            {
+                QString strMsg = QString("Querying servers ") + servers.join(",");
+                _logger->debug(strMsg);
+            }
+            qint32 offset;
+            if (queryOffset(offset, servers))
+            {
+                _logger->info(QString("Timestamper is emitting new offset of %1 ms.").arg(offset));
+                emit newOffset(offset);
+            }
+            else
+                sleepTime = 30*1000;
         }
-        //_lock must be locked before calling this!
-        _wait.wait(&_lock, _queryFrequenzMS);
+        else
+        {
+            _logger->info("Timestamper is disabled!");
+        }
+        _lock.lockForRead();
+        _wait.wait(&_lock, sleepTime);
         _lock.unlock();
     }
-    _logger->debug("thread is ending right now...yeah");
+}
+
+bool TimeStamper::queryOffset(qint32& offset, const QStringList& servers)
+{
+    QList<qint32> found;
+    qint32 expectedDelta = 0;
+    _lock.lockForRead();
+    uint numServers = _concurringServers;
+    _lock.unlock();
+
+    for (uint i = 0; i < numServers; i++)
+    {
+        //let's see if the want the thread to be stopped (probably from the outside)
+        if (!running())
+        {
+            _logger->debug("Querying NTP servers aborted.");
+            return false;
+        }
+        sleep(10); //wait at least 10 seconds between each concurring server
+        if (!running())
+        {
+            _logger->debug("Querying NTP servers aborted.");
+            return false;
+        }
+        if (NtpClient::currentOffset(offset, servers))
+        {
+            found.append(offset);
+            if (i == 0)
+            {
+                if (qAbs(offset) < s_maxVarianceMS)
+                {
+                    _logger->info(QString("A single SNTP offset query (%1) was within the tolerance").arg(offset));
+                    break; //we are happy when we are within the tolerance
+                }
+                else
+                    expectedDelta = offset;
+            }
+            else
+            {
+                if (qAbs(offset - expectedDelta) >= s_maxVarianceMS)
+                {
+                    if (_logger->isErrorEnabled())
+                    {
+                        QString strMessage = QString("SNTP client variance"
+                                                     "exceeded at query %1."
+                                                     " Expected %2ms and found %3ms."
+                                                     " All found so far:")
+                                             .arg(i)
+                                             .arg(expectedDelta)
+                                             .arg(offset);
+                        for (int j = 0; j < found.size(); j++)
+                        {
+                            strMessage += QString(" %1ms").arg(found[j]);
+                        }
+                        strMessage += QString(".");
+                        _logger->error(strMessage);
+                    }
+                    return false;
+                }
+            }
+        }
+    }
+    if (found.size() <= 0)
+    {
+        _logger->error("Unable to reach any of the NTP servers. Is the Network connected?");
+        return false;
+    }
+    if (_logger->isDebugEnabled())
+    {
+        QString strMessage = "Found offsets:";
+        for (int j = 0; j < found.size(); j++)
+        {
+            strMessage += QString(" %1ms").arg(found[j]);
+        }
+        strMessage += QString(".");
+        _logger->debug(strMessage);
+    }
+    return true;
 }

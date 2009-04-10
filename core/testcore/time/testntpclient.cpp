@@ -36,7 +36,8 @@ void TestNtpClient::testWithConnection()
     servers.append("2.pool.ntp.org");
     for (int i = 0; i < 10; i++)
     {
-        i2pp::core::NtpClient::currentOffset(servers);
+        qint32 offset;
+        i2pp::core::NtpClient::currentOffset(offset, servers);
     }
 }
 

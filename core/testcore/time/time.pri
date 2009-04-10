@@ -27,5 +27,5 @@ SOURCES += \
     $$PWD/testntpmessage.cpp \
     $$PWD/testsystemtime.cpp \
     $$PWD/testntpclient.cpp \
-	$$PWD/testtimestamper.cpp
+    $$PWD/testtimestamper.cpp
 
