@@ -20,10 +20,12 @@ DEPENDPATH += $$PWD/..
 HEADERS += \
     $$PWD/testntpmessage.h \
     $$PWD/testsystemtime.h \
-    $$PWD/testntpclient.h
+    $$PWD/testntpclient.h \
+    $$PWD/testtimestamper.h
 
 SOURCES += \
     $$PWD/testntpmessage.cpp \
     $$PWD/testsystemtime.cpp \
-    $$PWD/testntpclient.cpp
+    $$PWD/testntpclient.cpp \
+	$$PWD/testtimestamper.cpp
 

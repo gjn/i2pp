@@ -11,11 +11,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 INCLUDEPATH += $$PWD/..
+
 DEPENDPATH += $$PWD/..
-HEADERS += $$PWD/ntpmessage.h \
+
+HEADERS += \
+    $$PWD/../../include/time/systemtime.h \
+    $$PWD/ntpmessage.h \
     $$PWD/ntpclient.h \
-    $$PWD/../../include/time/systemtime.h
-SOURCES += $$PWD/ntpmessage.cpp \
+    $$PWD/timestamper.h
+
+SOURCES += \
+    $$PWD/systemtime.cpp \
+    $$PWD/ntpmessage.cpp \
     $$PWD/ntpclient.cpp \
-    $$PWD/systemtime.cpp
+    $$PWD/timestamper.cpp

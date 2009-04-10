@@ -125,9 +125,35 @@ void Random::logInitFinished()
 
 }
 
-bool Random::getBytes(QByteArray& ba)
+quint32 Random::bitPrecision(quint32& value)
 {
-    if (ba.size() <= 0)
+    if (!value)
+        return 0;
+    quint32 l = 0;
+    quint32 h = 8 * sizeof(value);
+
+    while (h - l > 1)
+    {
+        quint32 t = (l + h) / 2;
+        if (value >> t)
+            l = t;
+        else
+            h = t;
+    }
+    return h;
+}
+
+quint32 Random::crop(quint32 value, size_t size)
+{
+    if (size < 8 * sizeof(value))
+        return quint32(value & ((quint32(1) << size) - 1));
+    else
+        return value;
+}
+
+bool Random::generateBlock(unsigned char* out, quint32 size)
+{
+    if (size <= 0)
         return false;
 
     if (_prng)
@@ -135,24 +161,29 @@ bool Random::getBytes(QByteArray& ba)
         QMutexLocker locker(&_mutex);
         try
         {
-            _prng->randomize(reinterpret_cast<unsigned char*>(ba.data()), ba.size());
+            _prng->randomize(out, size);
         }
         catch (...)
         {
-            QString strMessage = QString("An error occured while trying to generate %1 random bytes. Exception thrown by baton library").arg(ba.size());
+            QString strMessage = QString("An error occured while trying to generate %1 random byte(s). Exception thrown by baton library").arg(size);
             _logger->error(strMessage);
             return false;
         }
     }
     else
     {
-        QString strMessage = QString("An error occured while trying to generate %1 random bytes. Randomizer not initialised.").arg(ba.size());
+        QString strMessage = QString("An error occured while trying to generate %1 random byte(s). Randomizer not initialised.").arg(size);
         _logger->error(strMessage);
         return false;
     }
-    QString strMessage = QString("%1 random bytes successfully generated.").arg(ba.size());
+    QString strMessage = QString("%1 random byte(s) successfully generated.").arg(size);
     _logger->debug(strMessage);
     return true;
+}
+
+bool Random::getBytes(QByteArray& ba)
+{
+    return generateBlock(reinterpret_cast<unsigned char*>(ba.data()), ba.size());
 }
 
 QByteArray Random::getBytes(unsigned int size)
@@ -165,27 +196,28 @@ QByteArray Random::getBytes(unsigned int size)
 
 bool Random::getByte(char& b)
 {
-    if (_prng)
-    {
-        QMutexLocker locker(&_mutex);
-        try
-        {
-            b = _prng->next_byte();
-        }
-        catch (...)
-        {
-            QString strMessage = QString("An error occured while trying to generate one random byte. Exception thrown by baton library");
-            _logger->error(strMessage);
-            return false;
-        }
-    }
+    return generateBlock(reinterpret_cast<unsigned char*>(&b),1);
+}
+
+bool Random::getUInt32(quint32& out, quint32 min, quint32 max)
+{
+    quint32 range;
+    if (min == max)
+        return min;
+    if (min < max)
+        range = max - min;
     else
+        range = min - max;
+
+    const quint32 maxBits = bitPrecision(range);
+    bool bSuccess = true;
+    quint32 value;
+    do
     {
-        QString strMessage = QString("An error occured while trying to generate one random byte. Randomizer not initialized.");
-        _logger->error(strMessage);
-        return false;
-    }
-    QString strMessage = QString("one random byte successfully generated.");
-    _logger->debug(strMessage);
-    return true;
+        bSuccess = generateBlock(reinterpret_cast<unsigned char*>(&value), sizeof(value));
+        value = crop(value, maxBits);
+    } while (bSuccess && value > range);
+
+    out = min + value;
+    return bSuccess;
 }

@@ -32,23 +32,20 @@ qint32 NtpClient::currentOffset(QStringList servers)
 
     if (servers.size() <= 0)
     {
-        logger->debug("Ntp Client failed because no servers are provided.");
+        logger->warn("Ntp Client failed because no servers are provided.");
         return 0;
     }
     //randomize the server list if there are more than one
     if (servers.size() > 1)
     {
-        ///@todo do server shuffling
-        /*
         int nSize = servers.size();
-        Random random;
+        Random* random = Context::globalContext()->random();
         for (int i=0; i < nSize; i++)
         {
             quint32 randomNr;
-            if (random.integer(randomNr, 0, nSize - i - 1))
+            if (random->getUInt32(randomNr, 0, nSize - i - 1))
                 servers.swap(i, i + randomNr);
         }
-        */
     }
     for (int i = 0; i < servers.size(); i++)
     {
@@ -71,7 +68,7 @@ qint32 NtpClient::currentOffset(QString server)
     if (!udpSocket.waitForConnected())
     {
         QString strMessage = QString("Failed to connect to server %1.").arg(server);
-        logger->debug(strMessage);
+        logger->warn(strMessage);
         return 0;
     }
     NtpMessage sendMessage;
@@ -83,7 +80,7 @@ qint32 NtpClient::currentOffset(QString server)
         if (udpSocket.state() != QAbstractSocket::UnconnectedState)
             udpSocket.waitForDisconnected();
         QString strMessage = QString("Failed to send udp datagram to server %1.").arg(server);
-        logger->debug(strMessage);
+        logger->warn(strMessage);
         return 0;
     }
 
@@ -95,7 +92,7 @@ qint32 NtpClient::currentOffset(QString server)
             if (udpSocket.state() != QAbstractSocket::UnconnectedState)
                 udpSocket.waitForDisconnected();
             QString strMessage = QString("Failed to recieve udp datagram from server %1.").arg(server);
-            logger->debug(strMessage);
+            logger->warn(strMessage);
             return 0;
         }
     }
@@ -107,7 +104,7 @@ qint32 NtpClient::currentOffset(QString server)
         if (udpSocket.state() != QAbstractSocket::UnconnectedState)
             udpSocket.waitForDisconnected();
         QString strMessage = QString("Failed to recieve correct number of bytes from server %1.").arg(server);
-        logger->debug(strMessage);
+        logger->warn(strMessage);
         return 0;
     }
     //get recieve time as fast as possible
@@ -121,13 +118,13 @@ qint32 NtpClient::currentOffset(QString server)
     if ((recMessage._stratum < 1) || (recMessage._stratum > 15))
     {
         QString strMessage = QString("Stratum of server %1 is in unacceptable range (%2).").arg(server).arg(recMessage._stratum);
-        logger->debug(strMessage);
+        logger->warn(strMessage);
         return 0;
     }
 
     qint32 retval = qint32(((recMessage._recieveTime - recMessage._originateTime) + (recMessage._transmitTime - destinationTime)) * 500.0);
 
     strMessage = QString("Time offset determined from server %1 is %2 ms").arg(server).arg(retval);
-    logger->debug(strMessage);
+    logger->info(strMessage);
     return retval;
 }

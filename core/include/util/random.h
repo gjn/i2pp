@@ -72,14 +72,26 @@ public:
     */
     bool getByte(char& b);
 
+    /*! getting random 32 bit unsigned integer
+      @param out the resulting randomized integer
+      @param min
+      @param max
+      @return success or not. It's adviced to check this
+      @Note: min and max are inclusive!
+    */
+    bool getUInt32(quint32& out, quint32 min = 0, quint32 max = 0xffffffffL);
+
 protected:
     Random(Context* pContext);
-    void init(Context* pContext);
-
     Random(const Random& other); //disable copy constructor
     Random&  operator = (const Random& other); //disable assignement operator
 
+    void init(Context* pContext);
     void logInitFinished();
+
+    bool generateBlock(unsigned char* out, quint32 size);
+    quint32 bitPrecision(quint32& value);
+    quint32 crop(quint32, size_t size);
 
     Context* _ctx; //reference
     Log4Qt::Logger* _logger;

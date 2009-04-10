@@ -32,7 +32,7 @@ I2PP uses existing tools and libaries to achieve its goals:
   Nokia. http://www.qtsoftware.com, together with Qt Creator,
   a multi-platfrom IDE, with integrated git support!
 
-- Baton: used for all cryptographic needs, like hashing,,
+- Botan: used for all cryptographic needs, like hashing,,
   encryption, key exchangine, etc. http://botan.randombit.net
 
 - log4qt: a log4j-like logging library for qt.

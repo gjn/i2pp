@@ -16,27 +16,24 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "testntpclient.h"
-#include "time/ntpclient.h"
+#include "testtimestamper.h"
+#include "time/timestamper.h"
 #include "qtestext.h"
 
 #include <iostream>
 
-QTESTEXT_ADD_TO(TestNtpClient,core_time);
+QTESTEXT_ADD_TO(TestTimeStamper,core_time_stamper);
 
-TestNtpClient::TestNtpClient()
+TestTimeStamper::TestTimeStamper()
 {
 }
 
-void TestNtpClient::testWithConnection()
+void TestTimeStamper::testSimple()
 {
-    QStringList servers;
-    servers.append("0.pool.ntp.org");
-    servers.append("1.pool.ntp.org");
-    servers.append("2.pool.ntp.org");
-    for (int i = 0; i < 10; i++)
-    {
-        i2pp::core::NtpClient::currentOffset(servers);
-    }
+    i2pp::core::TimeStamper stamper(i2pp::core::Context::globalContext());
+    QMutex locker;
+    QWaitCondition waiter;
+    locker.lock();
+    waiter.wait(&locker,ulong(2000));
 }
 

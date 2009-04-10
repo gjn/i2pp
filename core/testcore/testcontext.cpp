@@ -130,13 +130,13 @@ void TestContext::testLogger()
 void TestContext::testSettings()
 {
     i2pp::core::Context* context = i2pp::core::Context::instance("t1");
-    context->getSetting("dummykey",QString("dummyvalue"));
+    context->getSetting("DUMMY/DUMMYNUMBER", QVariant(quint32(5*60*1000)));
     //let's try to set a stringlist
     QStringList listWrite;
-    listWrite << "FirstString" << "SecondString";
-    context->getSetting("mystringlist",listWrite);
+    listWrite << "0" << "1" << "2";
+    context->getSetting("DUMMY/DUMMYLIST",listWrite);
     QStringList readList;
-    QVariant reVal=context->getSetting("mystringlist",readList);
+    QVariant reVal=context->getSetting("DUMMY/DUMMYLIST",readList);
     QVERIFY(reVal.type()==QVariant::StringList);
     readList = reVal.toStringList();
     QVERIFY(readList.size()==listWrite.size());

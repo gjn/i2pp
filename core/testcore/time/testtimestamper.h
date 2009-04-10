@@ -15,28 +15,18 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
+#ifndef TESTSYSTEMTIME_H
+#define TESTSYSTEMTIME_H
 
-#include "testntpclient.h"
-#include "time/ntpclient.h"
-#include "qtestext.h"
+#include <QObject>
 
-#include <iostream>
-
-QTESTEXT_ADD_TO(TestNtpClient,core_time);
-
-TestNtpClient::TestNtpClient()
+class TestTimeStamper : public QObject
 {
-}
+    Q_OBJECT
+    public:
+        TestTimeStamper();
+    private slots:
+        void testSimple();
+};
 
-void TestNtpClient::testWithConnection()
-{
-    QStringList servers;
-    servers.append("0.pool.ntp.org");
-    servers.append("1.pool.ntp.org");
-    servers.append("2.pool.ntp.org");
-    for (int i = 0; i < 10; i++)
-    {
-        i2pp::core::NtpClient::currentOffset(servers);
-    }
-}
-
+#endif
