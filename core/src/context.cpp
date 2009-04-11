@@ -140,6 +140,7 @@ void Context::initLogger()
     ///@todo initialisation is very basic now. extend to configure with input file
     //create layout
     Log4Qt::TTCCLayout* layout = new Log4Qt::TTCCLayout();
+    layout->setDateFormat("ISO8601");
     //create file appender
     Log4Qt::FileAppender* appender = new Log4Qt::FileAppender(layout,
                                                               _directory + "router.log",
@@ -150,7 +151,7 @@ void Context::initLogger()
     _logger = Log4Qt::Logger::logger(_name);
     _logger->setAdditivity(false);
     //for starters, let's log at debug level
-    _logger->setLevel(Log4Qt::Level(Log4Qt::Level::DEBUG_INT));
+    _logger->setLevel(Log4Qt::Level(Log4Qt::Level::TRACE_INT));
     _logger->addAppender(appender);
 }
 

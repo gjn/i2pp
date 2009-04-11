@@ -137,6 +137,7 @@ void TimeStamper::run()
         _wait.wait(&_lock, sleepTime);
         _lock.unlock();
     }
+    _logger->info("TimeStamper stopped.");
 }
 
 bool TimeStamper::queryOffset(qint32& offset, const QStringList& servers)

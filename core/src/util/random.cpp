@@ -176,8 +176,15 @@ bool Random::generateBlock(unsigned char* out, quint32 size)
         _logger->error(strMessage);
         return false;
     }
-    QString strMessage = QString("%1 random byte(s) successfully generated.").arg(size);
-    _logger->debug(strMessage);
+    if (_logger->isDebugEnabled())
+    {
+        QString strMessage = QString("%1 random byte(s) successfully generated.").arg(size);
+        _logger->debug(strMessage);
+    }
+    if (_logger->isTraceEnabled())
+    {
+        _logger->trace(QString(QByteArray(reinterpret_cast<const char*>(out),size).toHex().data()));
+    }
     return true;
 }
 
