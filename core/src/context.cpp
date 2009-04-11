@@ -18,6 +18,8 @@
 #include "pc.h"
 #include "context.h"
 #include "random.h"
+#include "clock.h"
+
 #include "log4qt/ttcclayout.h"
 #include "log4qt/fileappender.h"
 
@@ -115,6 +117,12 @@ Context::~Context()
 {
     delete _settings;
     _settings = NULL;
+
+    delete _random;
+    _random = NULL;
+
+    delete _clock;
+    _clock = NULL;
 }
 
 void Context::init()
@@ -131,6 +139,7 @@ void Context::init()
 
     _random = new Random(this);
 
+    _clock = new Clock(this);
 
     _logger->info("End of initialisation core::Context with name '%1'", _name);
 }
@@ -194,4 +203,9 @@ Log4Qt::Logger* Context::logger(QString name)
 Random* Context::random()
 {
     return _random;
+}
+
+Clock* Context::clock()
+{
+    return _clock;
 }

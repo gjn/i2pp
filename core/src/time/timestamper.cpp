@@ -20,10 +20,11 @@
 
 #include "random.h"
 #include "ntpclient.h"
+#include "clock.h"
 
 using namespace i2pp::core;
 
-qint32 TimeStamper::s_maxVarianceMS = 10*1000; //if servers differ more than 10 seconds, we have a problem
+const qint64 TimeStamper::MAX_VARIANCE_MS = 10*1000; //if servers differ more than 10 seconds, we have a problem
 
 TimeStamper::TimeStamper(Context* pContext)
 {
@@ -120,7 +121,7 @@ void TimeStamper::run()
                 QString strMsg = QString("Querying servers ") + servers.join(",");
                 _logger->debug(strMsg);
             }
-            qint32 offset;
+            qint64 offset;
             if (queryOffset(offset, servers))
             {
                 _logger->info(QString("Timestamper is emitting new offset of %1 ms.").arg(offset));
@@ -140,10 +141,10 @@ void TimeStamper::run()
     _logger->info("TimeStamper stopped.");
 }
 
-bool TimeStamper::queryOffset(qint32& offset, const QStringList& servers)
+bool TimeStamper::queryOffset(qint64& offset, const QStringList& servers)
 {
-    QList<qint32> found;
-    qint32 expectedDelta = 0;
+    QList<qint64> found;
+    qint64 expectedDelta = 0;
     _lock.lockForRead();
     uint numServers = _concurringServers;
     _lock.unlock();
@@ -164,20 +165,21 @@ bool TimeStamper::queryOffset(qint32& offset, const QStringList& servers)
         }
         if (NtpClient::currentOffset(offset, servers))
         {
-            found.append(offset);
+            qint64 delta = offset - _ctx->clock()->_currentOffset;
+            found.append(delta);
             if (i == 0)
             {
-                if (qAbs(offset) < s_maxVarianceMS)
+                if (qAbs(delta) < MAX_VARIANCE_MS)
                 {
                     _logger->info(QString("A single SNTP offset query (%1) was within the tolerance").arg(offset));
                     break; //we are happy when we are within the tolerance
                 }
                 else
-                    expectedDelta = offset;
+                    expectedDelta = delta;
             }
             else
             {
-                if (qAbs(offset - expectedDelta) >= s_maxVarianceMS)
+                if (qAbs(delta - expectedDelta) >= MAX_VARIANCE_MS)
                 {
                     if (_logger->isErrorEnabled())
                     {
@@ -187,7 +189,7 @@ bool TimeStamper::queryOffset(qint32& offset, const QStringList& servers)
                                                      " All found so far:")
                                              .arg(i)
                                              .arg(expectedDelta)
-                                             .arg(offset);
+                                             .arg(delta);
                         for (int j = 0; j < found.size(); j++)
                         {
                             strMessage += QString(" %1ms").arg(found[j]);

@@ -16,7 +16,10 @@ INCLUDEPATH += $$PWD/..
 
 DEPENDPATH += $$PWD/..
 
-HEADERS += $$PWD/../../include/util/random.h
+HEADERS += \
+	$$PWD/../../include/util/random.h \
+	$$PWD/../../include/util/clock.h
 
-SOURCES += $$PWD/random.cpp
-
+SOURCES += \
+	$$PWD/random.cpp \
+	$$PWD/clock.cpp

@@ -26,7 +26,7 @@
 using namespace i2pp::core;
 
 //static
-bool NtpClient::currentOffset(qint32& offset, QStringList servers)
+bool NtpClient::currentOffset(qint64& offset, QStringList servers)
 {
     Log4Qt::Logger* logger = Context::globalContext()->logger("NtpClient");
 
@@ -57,7 +57,7 @@ bool NtpClient::currentOffset(qint32& offset, QStringList servers)
 }
 
 //static
-bool NtpClient::currentOffset(qint32& offset, QString server)
+bool NtpClient::currentOffset(qint64& offset, QString server)
 {
     Log4Qt::Logger* logger = Context::globalContext()->logger("NtpClient");
     QString strMessage = QString("Trying to get time offset from server %1.").arg(server);
@@ -122,7 +122,7 @@ bool NtpClient::currentOffset(qint32& offset, QString server)
         return false;
     }
 
-    offset = qint32(((recMessage._recieveTime - recMessage._originateTime) + (recMessage._transmitTime - destinationTime)) * 500.0);
+    offset = qint64(((recMessage._recieveTime - recMessage._originateTime) + (recMessage._transmitTime - destinationTime)) * 500.0);
 
     strMessage = QString("Time offset determined from server %1 is %2 ms").arg(server).arg(offset);
     logger->info(strMessage);

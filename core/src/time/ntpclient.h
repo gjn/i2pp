@@ -38,10 +38,10 @@ class NtpClient
     public:
         ///returns offset in milliseconds of current system time versus ntp time.
         ///returns false if no time from server could be retrieved (no connection, no servers specified)
-        static bool currentOffset(qint32& offset, QStringList servers);
+        static bool currentOffset(qint64& offset, QStringList servers);
 
     private:
-        static bool currentOffset(qint32& offset, QString server);
+        static bool currentOffset(qint64& offset, QString server);
 
 };
 

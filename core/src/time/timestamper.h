@@ -44,7 +44,7 @@ class TimeStamper : public QThread
         virtual ~TimeStamper();
 
     signals:
-        void newOffset(qint32);
+        void newOffset(qint64);
 
     protected:
         TimeStamper(const TimeStamper& other); //disable copy constructor
@@ -57,7 +57,7 @@ class TimeStamper : public QThread
 
         //called in the thread
         virtual void run();
-        bool queryOffset(qint32& offset, const QStringList& servers);
+        bool queryOffset(qint64& offset, const QStringList& servers);
 
         //locking and control
         QReadWriteLock _lock;
@@ -70,7 +70,7 @@ class TimeStamper : public QThread
         bool _disabled;
         uint _concurringServers;
 
-        static qint32 s_maxVarianceMS;
+        static const qint64 MAX_VARIANCE_MS;
 
         //access global objects
         Context* _ctx;
