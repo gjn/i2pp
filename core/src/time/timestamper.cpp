@@ -165,7 +165,7 @@ bool TimeStamper::queryOffset(qint64& offset, const QStringList& servers)
         }
         if (NtpClient::currentOffset(offset, servers))
         {
-            qint64 delta = offset - _ctx->clock()->_currentOffset;
+            qint64 delta = offset - _ctx->clock()->offset();
             found.append(delta);
             if (i == 0)
             {

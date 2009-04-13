@@ -46,8 +46,13 @@ Q_OBJECT
 public:
     virtual ~Clock();
 
+    quint64 now();
+
+signals:
+    void offsetChanged(qint64 delta);
+
 protected slots:
-    void setOffset(qint64 offset);
+    void offset(qint64 offsetMS);
 
 protected:
     Clock(Context* pContext);
@@ -55,6 +60,8 @@ protected:
     Clock&  operator = (const Clock& other); //disable assignement operator
 
     void init(Context* pContext);
+
+    qint64 offset();
 
     Context* _ctx; //reference
     Log4Qt::Logger* _logger;

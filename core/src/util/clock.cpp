@@ -49,6 +49,10 @@ Clock& Clock::operator = (const Clock& other)
     return *this;
 }
 
+quint64 Clock::now()
+{
+    return SystemTime::milliSeconds() + offset();
+}
 
 void Clock::init(Context* pContext)
 {
@@ -59,20 +63,71 @@ void Clock::init(Context* pContext)
     _logger->info("Starting to initialise Clock");
 
     _startedOn = SystemTime::milliSeconds();
-    _timeStamper = new TimeStamper(pContext);
-
-    connect(_timeStamper, SIGNAL(newOffset(qint64)), SLOT(setOffset(qint64)));
-
     _currentOffset = 0;
     _alreadyChanged = false;
     _statsCreated = false;
 
+    _timeStamper = new TimeStamper(pContext);
+    connect(_timeStamper, SIGNAL(newOffset(qint64)), SLOT(offset(qint64)));
+
     _logger->info("Clock Initialised");
 }
 
-//slote
-void Clock::setOffset(qint64 offset)
+//slot
+void Clock::offset(qint64 offsetMS)
 {
-    QWriteLocker locker(&_mutex);
-    _currentOffset = offset;
+    qint64 delta = offsetMS - offset();
+    if ((offsetMS > MAX_OFFSET) || (offsetMS < 0 - MAX_OFFSET))
+    {
+        _logger->error(QString("Maximum offset shift exceeded [%1], NOT HONORING IT").arg(offsetMS));
+        return;
+    }
+    // only allow substantial modifications before the first 10 minutes
+    if (_alreadyChanged && (SystemTime::milliSeconds() - _startedOn > 10 * 60 * 1000))
+    {
+        if ((delta > MAX_LIVE_OFFSET) || (delta < 0 - MAX_LIVE_OFFSET))
+        {
+            _logger->error(QString("The clock has already been updated, but you want to change it by "
+                                   "%1 to %2? Did something break?").arg(delta).arg(offsetMS));
+            return;
+        }
+    }
+    if ((delta < MIN_OFFSET_CHANGE) && (delta > 0 - MIN_OFFSET_CHANGE))
+    {
+        _logger->debug(QString("Not changing offset since it is only %1ms").arg(delta));
+        _alreadyChanged = true;
+        return;
+    }
+    if (_alreadyChanged)
+    {
+        if (delta > 15*1000)
+            _logger->warn(QString("Updating clock offset to %1ms from %2ms").arg(offsetMS).arg(offset()));
+        else if (_logger->isInfoEnabled())
+            _logger->info(QString("Updating clock offset to %1ms from %2ms").arg(offsetMS).arg(offset()));
+
+        if (!_statsCreated)
+        {
+            ///@todo : establish stat manager
+            //_context.statManager().createRateStat("clock.skew", "How far is the already adjusted clock being skewed?", "Clock", new long[] { 10*60*1000, 3*60*60*1000, 24*60*60*60 });
+        }
+        _statsCreated = true;
+        ///@todo: add rate to the stat manager
+        //_context.statManager().addRateData("clock.skew", delta, 0);
+    }
+    else
+    {
+        _logger->info(QString("Initializing clock offset to %1ms from %2ms").arg(offsetMS).arg(offset()));
+    }
+    _alreadyChanged = true;
+    _mutex.lockForWrite();
+    _currentOffset = offsetMS;
+    _mutex.unlock();
+
+    emit offsetChanged(delta);
+}
+
+qint64 Clock::offset()
+{
+    QReadLocker locker(&_mutex);
+    return _currentOffset;
 }
