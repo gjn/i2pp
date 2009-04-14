@@ -11,35 +11,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-TEMPLATE = lib
-QT += network
-QT -= gui
-CONFIG += staticlib
-TARGET = i2pp-core
-DESTDIR = lib
-INCLUDEPATH += \
-    include \
-    include/time \
-    include/util \
-    src \
-    ../log4qt/src
 
-LIBS+= -lbotan
+INCLUDEPATH += $$PWD/..
 
-PRECOMPILED_HEADER = src/pc.h
-CONFIG(debug, debug|release) { 
-    TARGET = $$join(TARGET,,,D)
-    DEFINES += DEBUG
-}
-win32:DEFINES += WIN32
-include(../log4qt/src/log4qt/log4qt.pri)
-include(./src/time/time.pri)
-include(./src/stat/stat.pri)
-include(./src/util/util.pri)
-
-SOURCES += src/context.cpp
+DEPENDPATH += $$PWD/..
 
 HEADERS += \
-    src/pc.h \
-    include/context.h \
-    include/core.h \
+    $$PWD/frequency.h 
+	
+SOURCES += \
+    $$PWD/frequency.cpp
+	

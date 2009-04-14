@@ -126,7 +126,7 @@ void Clock::offset(qint64 offsetMS)
     emit offsetChanged(delta);
 }
 
-qint64 Clock::offset()
+qint64 Clock::offset() const
 {
     QReadLocker locker(&_mutex);
     return _currentOffset;

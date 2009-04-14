@@ -61,13 +61,13 @@ protected:
 
     void init(Context* pContext);
 
-    qint64 offset();
+    qint64 offset() const;
 
     Context* _ctx; //reference
     Log4Qt::Logger* _logger;
     TimeStamper* _timeStamper;
 
-    QReadWriteLock _mutex;
+    mutable QReadWriteLock _mutex;
 
     qint64 _currentOffset; //current offset to the computes system time
     bool _alreadyChanged; //was the offset set once?
