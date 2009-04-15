@@ -44,11 +44,14 @@ TimeStamper::~TimeStamper()
     //wakeup
     _wait.wakeAll();
     //wait until finished
-    wait();
+    while (isRunning() && !isFinished())
+    {
+        QThread::currentThread()->msleep(50); //be gracefull
+    }
     _logger->trace("timestamper deconstructed...yeah");
 }
 
-TimeStamper::TimeStamper(const TimeStamper& other)
+TimeStamper::TimeStamper(const TimeStamper& other):QThread(NULL)
 {
     UNUSED_PARAMETER(other);
 }
@@ -134,9 +137,12 @@ void TimeStamper::run()
         {
             _logger->info("Timestamper is disabled!");
         }
-        _lock.lockForRead();
-        _wait.wait(&_lock, sleepTime);
-        _lock.unlock();
+        if (running())
+        {
+            _lock.lockForRead();
+            _wait.wait(&_lock, sleepTime);
+            _lock.unlock();
+        }
     }
     _logger->info("TimeStamper stopped.");
 }

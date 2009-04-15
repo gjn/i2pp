@@ -43,4 +43,3 @@ void TestRandom::testSimple()
     std::cout << "first created random bytes (base64 encoded): " << QString(bb.toBase64().data()).toStdString().c_str() << std::endl;
     std::cout << "second created random bytes (base64 encoded): " << QString(ba.toBase64().data()).toStdString().c_str() << std::endl;
 }
-

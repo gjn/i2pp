@@ -72,34 +72,56 @@ namespace i2pp {
 using namespace i2pp::core;
 
 //create the globals during initialisation
-static ContextGlobals g_globals;
+ContextGlobals* g_globals = NULL;
+
+ContextProvider::ContextProvider()
+{
+    if (g_globals == NULL)
+        g_globals = new ContextGlobals();
+}
+
+ContextProvider::~ContextProvider()
+{
+    if (g_globals)
+        delete g_globals;
+    g_globals = NULL;
+}
 
 Context* Context::globalContext()
 {
-    if (g_globals._globalContext)
-        return g_globals._globalContext;
+    if (g_globals == NULL)
+        return NULL;
+
+    if (g_globals->_globalContext)
+        return g_globals->_globalContext;
     return instance("");
 }
 
 Context* Context::instance(const QString& name)
 {
+    if (g_globals == NULL)
+        return NULL;
+
     QString lname = name;
     if (lname.isEmpty())
         lname = "global";
-    if (!g_globals._instances.contains(lname))
+    if (!g_globals->_instances.contains(lname))
         new Context(lname);
-    return g_globals._instances[lname];
+    return g_globals->_instances[lname];
 }
 
 Context::Context(const QString& name):
         _name(name)
-        ,_directory(g_globals._rootDirectory + "context_" + name + QDir::separator())
+        ,_directory(g_globals?g_globals->_rootDirectory + "context_" + name + QDir::separator():"")
 {
-    if (g_globals._globalContext == NULL)
-        g_globals._globalContext = this;
-    g_globals._instances[name] = this;
+    if (g_globals != NULL)
+    {
+        if (g_globals->_globalContext == NULL)
+            g_globals->_globalContext = this;
+        g_globals->_instances[name] = this;
 
-    init();
+        init();
+    }
 }
 
 Context::Context(const Context& other)
@@ -115,18 +137,21 @@ Context& Context::operator =(const Context& other)
 
 Context::~Context()
 {
-    delete _settings;
-    _settings = NULL;
+    delete _clock;
+    _clock = NULL;
 
     delete _random;
     _random = NULL;
 
-    delete _clock;
-    _clock = NULL;
+    delete _settings;
+    _settings = NULL;
 }
 
 void Context::init()
 {
+    if (g_globals == NULL)
+        return;
+
     //init the loggers as early as possible, so we have it
     initLogger();
 
@@ -134,8 +159,8 @@ void Context::init()
 
     QDir curDir = QDir(_directory);
     curDir.mkpath(_directory);
-    QString filepath = _directory + "router." + g_globals._confSuffix;
-    _settings = new QSettings(filepath, g_globals._format);
+    QString filepath = _directory + "router." + g_globals->_confSuffix;
+    _settings = new QSettings(filepath, g_globals->_format);
 
     _random = new Random(this);
 
@@ -176,14 +201,17 @@ QString Context::directory() const
 
 QVariant Context::getSetting(const QString& key, const QVariant& defaultValue) const
 {
+    if (g_globals == NULL)
+        return QVariant();
+
     //make sure global settings has it
-    if (!g_globals._globalSettings->contains(key))
-        g_globals._globalSettings->setValue(key,defaultValue);
+    if (!g_globals->_globalSettings->contains(key))
+        g_globals->_globalSettings->setValue(key,defaultValue);
     //get from router, if not, get from global settings
     if (_settings->contains(key))
         return _settings->value(key, defaultValue);
     else
-        return g_globals._globalSettings->value(key, defaultValue);
+        return g_globals->_globalSettings->value(key, defaultValue);
 }
 
 void Context::setSetting(const QString & key, const QVariant & value)

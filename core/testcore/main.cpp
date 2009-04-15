@@ -16,6 +16,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include "context.h"
 #include "runner.h"
 #include <QTimer>
 
@@ -28,6 +29,7 @@ Botan::LibraryInitializer init;
 
 int main(int argc, char *argv[])
 {
+    i2pp::core::ContextProvider provider;
     QCoreApplication app(argc,argv);
     Runner runner(&app);
     QTimer::singleShot(1, &runner, SLOT(run()));

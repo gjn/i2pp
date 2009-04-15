@@ -30,6 +30,16 @@ namespace i2pp
 namespace core
 {
 
+class ContextGlobals;
+
+class ContextProvider
+{
+    public:
+        ContextProvider();
+        ~ContextProvider();
+};
+
+
 class Random;
 class Clock;
 /*! Context
@@ -57,8 +67,9 @@ class Clock;
   @note
   As the context is THE central part of i2pp, it's important
   that a context instance is created as early as possible
-  in an application, and deleted at the very end. Creation is _NOT_
-  done during static initialisation.
+  in an application, and deleted at the very end. Creation should _NOT_ be
+  done during static or global initialisation. Also, a contextprovider object
+  (just one) has to be created beforehand, also not static and global.
 
   It's possible to have more than one context in one process/application.
   This is especially helpful, but not limited, for developement and debugging,

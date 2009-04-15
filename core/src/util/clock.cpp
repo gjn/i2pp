@@ -36,9 +36,10 @@ Clock::Clock(Context* pContext)
 
 Clock::~Clock()
 {
+    delete _timeStamper;
 }
 
-Clock::Clock(const Clock& other)
+Clock::Clock(const Clock& other):QObject(NULL)
 {
     UNUSED_PARAMETER(other);
 }

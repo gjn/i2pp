@@ -35,7 +35,7 @@ void TestTimeStamper::testSimple()
     QWaitCondition waiter;
     locker.lock();
     //enable this if you really want to test the stamper. Thread is
-    //ended when stamper object runs out of scopt here.
+    //ended when stamper object runs out of scope here.
     //waiter.wait(&locker,ulong(60000));
 }
 
