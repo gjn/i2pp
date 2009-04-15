@@ -39,14 +39,15 @@ namespace core
 class TimeStamper : public QThread
 {
     Q_OBJECT
+    friend class Clock;
     public:
-        TimeStamper(Context* pContext);
         virtual ~TimeStamper();
 
     signals:
         void newOffset(qint64);
 
     protected:
+        TimeStamper(Context* pContext);
         TimeStamper(const TimeStamper& other); //disable copy constructor
         TimeStamper&  operator = (const TimeStamper& other); //disable assignement operator
 

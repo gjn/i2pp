@@ -30,8 +30,6 @@ namespace i2pp
 namespace core
 {
 
-class ContextGlobals;
-
 class ContextProvider
 {
     public:

@@ -30,12 +30,8 @@ TestTimeStamper::TestTimeStamper()
 
 void TestTimeStamper::testSimple()
 {
-    i2pp::core::TimeStamper stamper(i2pp::core::Context::globalContext());
-    QMutex locker;
-    QWaitCondition waiter;
-    locker.lock();
-    //enable this if you really want to test the stamper. Thread is
-    //ended when stamper object runs out of scope here.
-    //waiter.wait(&locker,ulong(60000));
+    //just make sure a timestamper gets created by accessing the global context
+    //verify in log file is somehting happends
+    i2pp::core::Context::globalContext();
 }
 

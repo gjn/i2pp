@@ -19,6 +19,7 @@
 #include "context.h"
 #include "runner.h"
 #include <QTimer>
+#include <iostream>
 
 #include <botan/botan.h>
 

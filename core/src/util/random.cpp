@@ -32,6 +32,7 @@ Random::~Random()
 {
     if (_prng)
         delete _prng;
+    _prng = NULL;
 }
 
 Random::Random(const Random& other)
