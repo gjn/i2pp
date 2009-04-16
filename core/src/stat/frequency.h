@@ -19,17 +19,72 @@
 #ifndef I2PP_CORE_FREQUENCY_H
 #define I2PP_CORE_FREQUENCY_H
 
+#include <QSharedDataPointer>
+
 namespace i2pp
 {
 namespace core
 {
 
+class FrequencyData;
+
 /*! Frequency
 	Manage the calculation of a moving event frequency over a certain period.
+
+    This class is implicitely shared (in the Qt sense).
+    This class is thread-safe.
 */
 class Frequency
 {
     public:
+        Frequency(qint64 periodMS);
+        Frequency(const Frequency& other);
+        Frequency& operator= (const Frequency& other);
+
+        /** how long is this frequency averaged over? */
+        qint64 getPeriod() const;
+
+        /** when did the last event occur? */
+        qint64 getLastEvent() const;
+
+        /**
+         * on average over the last $period, after how many milliseconds are events coming in,
+         * as calculated during the last event occurrence?
+         */
+        double getAverageInterval() const;
+
+        /** what is the lowest average interval (aka most frequent) we have seen? */
+        double getMinAverageInterval() const;
+
+        /** calculate how many events would occur in a period given the current average */
+        double getAverageEventsPerPeriod() const;
+
+        /** calculate how many events would occur in a period given the maximum average */
+        double getMaxAverageEventsPerPeriod() const;
+
+        /** over the lifetime of this stat, without any decay or weighting, what was the average interval between events? */
+        double getStrictAverageInterval() const;
+
+        /** using the strict average interval, how many events occur within an average period? */
+        double getStrictAverageEventsPerPeriod() const;
+
+        /** how many events have occurred within the lifetime of this stat? */
+        qint64 getEventCount() const;
+
+        /** Take note that a new event occurred, recalculating all the averages and frequencies */
+        void eventOccured();
+
+        /** Recalculate the averages */
+        void recalculate();
+
+    private:
+        Frequency();
+
+        void recalculate(bool eventOccured);
+
+        void setPeriod(qint64 milliseconds);
+
+        QSharedDataPointer<FrequencyData> d;
 };
 
 }
