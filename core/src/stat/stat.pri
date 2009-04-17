@@ -17,8 +17,9 @@ INCLUDEPATH += $$PWD/..
 DEPENDPATH += $$PWD/..
 
 HEADERS += \
-    $$PWD/frequency.h 
+    $$PWD/frequency.h \
+    $$PWD/frequencystat.h
 	
 SOURCES += \
-    $$PWD/frequency.cpp
-	
+    $$PWD/frequency.cpp \
+    $$PWD/frequencystat.cpp

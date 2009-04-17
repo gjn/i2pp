@@ -19,6 +19,7 @@
 #ifndef I2PP_CORE_FREQUENCY_H
 #define I2PP_CORE_FREQUENCY_H
 
+#include "../time/systemtime.h"
 #include <QSharedDataPointer>
 
 namespace i2pp
@@ -39,7 +40,6 @@ class Frequency
     public:
         Frequency(qint64 periodMS);
         Frequency(const Frequency& other);
-        Frequency& operator= (const Frequency& other);
 
         /** how long is this frequency averaged over? */
         qint64 getPeriod() const;
@@ -85,6 +85,38 @@ class Frequency
         void setPeriod(qint64 milliseconds);
 
         QSharedDataPointer<FrequencyData> d;
+};
+
+class FrequencyData : public QSharedData
+{
+    public:
+        FrequencyData()
+        {
+            _avgInterval = 0.0;
+            _minAverageInterval = 0.0;
+            _period = 0;
+            _lastEvent = 0;
+            _start = SystemTime::milliSeconds();
+            _count = 0;
+        }
+
+        FrequencyData(const FrequencyData& other):QSharedData(other)
+        ,_avgInterval(other._avgInterval)
+        ,_minAverageInterval(other._minAverageInterval)
+        ,_period(other._period)
+        ,_lastEvent(other._lastEvent)
+        ,_start(other._start)
+        ,_count(other._count)
+        {
+        }
+
+        double _avgInterval;
+        double _minAverageInterval;
+        qint64 _period;
+        qint64 _lastEvent;
+        qint64 _start;
+        qint64 _count;
+        mutable QReadWriteLock _lock;
 };
 
 }
