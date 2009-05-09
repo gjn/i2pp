@@ -29,17 +29,20 @@ namespace core
 
 class FrequencyData;
 
+
 /*! Frequency
 	Manage the calculation of a moving event frequency over a certain period.
 
-    This class is implicitely shared (in the Qt sense).
-    This class is thread-safe.
+    This class is implicitely shared (in the Qt sense) and it is reentrant, but
+    NOT thread-safe.
 */
 class Frequency
 {
     public:
         Frequency(qint64 periodMS);
         Frequency(const Frequency& other);
+
+        virtual ~Frequency();
 
         /** how long is this frequency averaged over? */
         qint64 getPeriod() const;
@@ -78,45 +81,12 @@ class Frequency
         void recalculate();
 
     private:
-        Frequency();
-
         void recalculate(bool eventOccured);
 
         void setPeriod(qint64 milliseconds);
 
         QSharedDataPointer<FrequencyData> d;
-};
-
-class FrequencyData : public QSharedData
-{
-    public:
-        FrequencyData()
-        {
-            _avgInterval = 0.0;
-            _minAverageInterval = 0.0;
-            _period = 0;
-            _lastEvent = 0;
-            _start = SystemTime::milliSeconds();
-            _count = 0;
-        }
-
-        FrequencyData(const FrequencyData& other):QSharedData(other)
-        ,_avgInterval(other._avgInterval)
-        ,_minAverageInterval(other._minAverageInterval)
-        ,_period(other._period)
-        ,_lastEvent(other._lastEvent)
-        ,_start(other._start)
-        ,_count(other._count)
-        {
-        }
-
-        double _avgInterval;
-        double _minAverageInterval;
-        qint64 _period;
-        qint64 _lastEvent;
-        qint64 _start;
-        qint64 _count;
-        mutable QReadWriteLock _lock;
+        friend class FrequencyData;
 };
 
 }

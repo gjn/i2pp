@@ -33,8 +33,8 @@ class FrequencyStatData;
 /*! FrequencyStat
     Manages a frequency stat over several periods
 
-    This class is implicitely shared (in the Qt sense).
-    This class is thread-safe.
+    This class is implicitely shared (in the Qt sense) and reentrant.
+    This class is NOT thread-safe.
 */
 class FrequencyStat
 {
@@ -84,7 +84,6 @@ class FrequencyStatData : public QSharedData
         QString _description;
         QString _groupName;
         QList<Frequency> _frequencies;
-        mutable QReadWriteLock _lock;
 };
 
 

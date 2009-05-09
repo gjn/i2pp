@@ -43,25 +43,21 @@ FrequencyStat::FrequencyStat(const FrequencyStat& other) : d(other.d)
 
 QString FrequencyStat::getName() const
 {
-    QReadLocker locker(&d->_lock);
     return d->_statName;
 }
 
 QString FrequencyStat::getGroupName() const
 {
-    QReadLocker locker(&d->_lock);
     return d->_groupName;
 }
 
 QString FrequencyStat::getDescription() const
 {
-    QReadLocker locker(&d->_lock);
     return d->_description;
 }
 
 QList<qint64> FrequencyStat::getPeriods() const
 {
-    QReadLocker locker(&d->_lock);
     QList<qint64> retval;
     foreach (Frequency freq, d->_frequencies)
         retval << freq.getPeriod();
@@ -70,7 +66,6 @@ QList<qint64> FrequencyStat::getPeriods() const
 
 bool FrequencyStat::getFrequency(qint64 period, Frequency& freq) const
 {
-    QReadLocker locker(&d->_lock);
     foreach (Frequency myfreq, d->_frequencies)
     {
         if (myfreq.getPeriod() == period)
@@ -84,7 +79,6 @@ bool FrequencyStat::getFrequency(qint64 period, Frequency& freq) const
 
 void FrequencyStat::eventOccured()
 {
-    QWriteLocker locker(&d->_lock);
     foreach (Frequency freq, d->_frequencies)
         freq.eventOccured();
 }
