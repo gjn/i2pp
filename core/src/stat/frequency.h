@@ -27,7 +27,7 @@ namespace i2pp
 namespace core
 {
 
-class FrequencyData;
+class FrequencyPrivate;
 
 
 /*! Frequency
@@ -41,8 +41,6 @@ class Frequency
     public:
         Frequency(qint64 periodMS);
         Frequency(const Frequency& other);
-
-        virtual ~Frequency();
 
         /** how long is this frequency averaged over? */
         qint64 getPeriod() const;
@@ -85,8 +83,40 @@ class Frequency
 
         void setPeriod(qint64 milliseconds);
 
-        QSharedDataPointer<FrequencyData> d;
-        friend class FrequencyData;
+        QSharedDataPointer<FrequencyPrivate> d;
+        friend class FrequencyPrivate;
+};
+
+
+class FrequencyPrivate : public QSharedData
+{
+    public:
+        FrequencyPrivate()
+        {
+            _avgInterval = 0.0;
+            _minAverageInterval = 0.0;
+            _period = 0;
+            _lastEvent = 0;
+            _start = SystemTime::milliSeconds();
+            _count = 0;
+        }
+
+        FrequencyPrivate(const FrequencyPrivate& other):QSharedData(other)
+        ,_avgInterval(other._avgInterval)
+        ,_minAverageInterval(other._minAverageInterval)
+        ,_period(other._period)
+        ,_lastEvent(other._lastEvent)
+        ,_start(other._start)
+        ,_count(other._count)
+        {
+        }
+
+        double _avgInterval;
+        double _minAverageInterval;
+        qint64 _period;
+        qint64 _lastEvent;
+        qint64 _start;
+        qint64 _count;
 };
 
 }

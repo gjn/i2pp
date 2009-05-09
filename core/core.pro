@@ -26,10 +26,17 @@ INCLUDEPATH += \
 
 LIBS+= -lbotan
 
+MOC_DIR = release
+OBJECTS_DIR = release
+
+
 PRECOMPILED_HEADER = src/pc.h
 CONFIG(debug, debug|release) { 
     TARGET = $$join(TARGET,,,D)
     DEFINES += DEBUG
+    MOC_DIR = debug
+    OBJECTS_DIR = debug
+
 }
 win32:DEFINES += WIN32
 include(../log4qt/src/log4qt/log4qt.pri)

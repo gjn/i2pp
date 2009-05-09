@@ -28,9 +28,14 @@ DESTDIR = lib
 
 INCLUDEPATH += include
 
+MOC_DIR = release
+OBJECTS_DIR = release
+
 CONFIG(debug, debug|release){
     TARGET = $$join(TARGET,,,D)
     DEFINES += DEBUG
+    MOC_DIR = debug
+    OBJECTS_DIR = debug
 }
 
 SOURCES += \

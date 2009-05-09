@@ -20,7 +20,6 @@
 #define I2PP_CORE_FREQUENCYSTAT_H
 
 #include "frequency.h"
-
 #include <QSharedDataPointer>
 
 namespace i2pp
@@ -28,7 +27,7 @@ namespace i2pp
 namespace core
 {
 
-class FrequencyStatData;
+class FrequencyStatPrivate;
 
 /*! FrequencyStat
     Manages a frequency stat over several periods
@@ -55,24 +54,23 @@ class FrequencyStat
         QList<qint64> getPeriods() const;
 
         bool getFrequency(qint64 period, Frequency&) const;
-
    private:
-        FrequencyStat();
-
-        QSharedDataPointer<FrequencyStatData> d;
+        QSharedDataPointer<FrequencyStatPrivate> d;
+        friend class FrequencyStatPrivate;
 };
 
-class FrequencyStatData : public QSharedData
+
+class FrequencyStatPrivate : public QSharedData
 {
     public:
-        FrequencyStatData()
+        FrequencyStatPrivate()
         {
             _statName = "";
             _description = "";
             _groupName = "";
         }
 
-        FrequencyStatData(const FrequencyStatData& other):QSharedData(other)
+        FrequencyStatPrivate(const FrequencyStatPrivate& other):QSharedData(other)
         ,_statName(other._statName)
         ,_description(other._description)
         ,_groupName(other._groupName)
@@ -85,7 +83,6 @@ class FrequencyStatData : public QSharedData
         QString _groupName;
         QList<Frequency> _frequencies;
 };
-
 
 }
 }

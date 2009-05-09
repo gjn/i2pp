@@ -18,47 +18,9 @@
 #include "pc.h"
 #include "frequency.h"
 
-namespace i2pp {
-namespace core {
-
-class FrequencyData : public QSharedData
-{
-    public:
-        FrequencyData()
-        {
-            _avgInterval = 0.0;
-            _minAverageInterval = 0.0;
-            _period = 0;
-            _lastEvent = 0;
-            _start = SystemTime::milliSeconds();
-            _count = 0;
-        }
-
-        FrequencyData(const FrequencyData& other):QSharedData(other)
-        ,_avgInterval(other._avgInterval)
-        ,_minAverageInterval(other._minAverageInterval)
-        ,_period(other._period)
-        ,_lastEvent(other._lastEvent)
-        ,_start(other._start)
-        ,_count(other._count)
-        {
-        }
-
-        double _avgInterval;
-        double _minAverageInterval;
-        qint64 _period;
-        qint64 _lastEvent;
-        qint64 _start;
-        qint64 _count;
-};
-
-}
-}
-
-
 using namespace i2pp::core;
 
-Frequency::Frequency(qint64 periodMS) : d(new FrequencyData)
+Frequency::Frequency(qint64 periodMS) : d(new FrequencyPrivate)
 {
     setPeriod(periodMS);
 }
@@ -67,11 +29,6 @@ Frequency::Frequency(const Frequency& other) : d(other.d)
 {
 }
 
-Frequency::~Frequency()
-{
-    // QSharedDataPointer auto deletes
-    d = 0;
-}
 
 qint64 Frequency::getPeriod() const
 {

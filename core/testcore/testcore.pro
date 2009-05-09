@@ -35,6 +35,10 @@ LIBS += -L../lib/ \
     -L../../qtestext/lib/ \
     -lbotan
 
+MOC_DIR = release
+OBJECTS_DIR = release
+
+
 CONFIG(release, debug|release){
     LIBS += -lqtestext \
         -li2pp-core
@@ -42,6 +46,9 @@ CONFIG(release, debug|release){
     LIBS += -lqtestextD \
         -li2pp-coreD
     DEFINES += DEBUG
+    MOC_DIR = debug
+    OBJECTS_DIR = debug
+
 }
 
 include(./time/time.pri)

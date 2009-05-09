@@ -17,19 +17,13 @@
 */
 #include "pc.h"
 #include "frequencystat.h"
+#include "frequency.h"
 
 using namespace i2pp::core;
 
-//private default constructor
-FrequencyStat::FrequencyStat()
-{
-    d = new FrequencyStatData();
-}
-
 FrequencyStat::FrequencyStat(QString name, QString description,
-                             QString group, QList<qint64> periods)
+                             QString group, QList<qint64> periods) : d(new FrequencyStatPrivate)
 {
-    d = new FrequencyStatData();
     d->_statName = name;
     d->_description = description;
     d->_groupName = group;

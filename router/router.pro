@@ -29,6 +29,9 @@ INCLUDEPATH += include \
 
 DEFINES += I2PP_ROUTER_LIBRARY
 
+MOC_DIR = release
+OBJECTS_DIR = release
+
 LIBS += -L../core/lib/
 CONFIG(release, debug|release){
     LIBS += -li2pp-core
@@ -37,6 +40,9 @@ else{
     DEFINES += DEBUG
     LIBS += -li2pp-coreD
     TARGET = i2pp-routerD
+    MOC_DIR = debug
+    OBJECTS_DIR = debug
+
 }
 
 PRECOMPILED_HEADER = src/pc.h
